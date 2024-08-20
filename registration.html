@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="it">
+
+
+<head>
+    <meta charset="UTF-8">
+    <title>Registrazione utente</title>
+</head>
+
+
+<body> <!--username, email, pw , ripeti pw-->
+<FORM
+        action = "home_page.html"
+        method = "post" >
+    <P>
+        <b>Crea un nuovo username:</b><br>
+        <INPUT type="text" required>
+    </P>
+    <P>
+        <b>Inserisci una tua e-mail:</b><br>
+        <INPUT type="email" required>
+    </P>
+    <P>
+        <b>Inserisci una password:</b><br>
+        <i>Deve contenere almeno 8 caratteri, tra cui una maiuscola, una minuscola, un numero e un carattere speciale </i> <br>
+        <!--   (?=.*\d) ALMENO UN NUMERO
+               (?=.*[a-z]) ALMENO UNA MINUSCOLA
+               (?=.*[A-Z]) ALMENO UNA MAIUSCOLA
+               (?=.*[@#$%^&+=]) ALMENO UN CARATTERE SPECIALE
+               {8,} MINIMO 8 CARATTERI -->
+        <INPUT type="password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=]).{8,}" required>
+    </P>
+    <P>
+        <b>Ripeti password:</b><br>
+        <INPUT type="password" class = "Password" pattern = "(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=]).{8,}" required>
+    </P>
+
+    <INPUT type = 'submit' VALUE = REGISTRATI>
+
+</FORM>
+</body>
+</html>
