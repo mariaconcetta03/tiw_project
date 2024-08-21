@@ -10,7 +10,7 @@
 
 <body> <!--username, email, pw , ripeti pw-->
 <FORM
-        action = "registration_servlet"
+        action = "/RegistrationServlet"
         method = "post">
     <P>
         <b>Crea un nuovo username:</b><br>
@@ -29,13 +29,32 @@
                (?=.*[@#$%^&+=]) ALMENO UN CARATTERE SPECIALE
                {8,} MINIMO 8 CARATTERI -->
         <INPUT type="password" name = "password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!£-]).{8,}" required>
-        <p th:text=" ${errorMsg}" >
     </P>
     <P>
         <b>Ripeti password:</b><br>
         <INPUT type="password" name = "password_conf" required>
     </P>
     <INPUT type = 'submit' VALUE = REGISTRATI>
+        
+        
+        
+           <!-- Messaggio di errore -->
+    <div style="color: red;">
+        <!-- Qui verrà visualizzato il messaggio di errore -->
+        <p id="errorMessage"></p>
+    </div>
+
+    <script>
+        // Estrai il parametro "error" dall'URL e visualizzalo se esiste
+        const params = new URLSearchParams(window.location.search); // prendo tutti i parametri dell'URL
+        const errorMessage = params.get('error'); // prendo il parametro ERROR nell'url
+        if (errorMessage) {
+            document.getElementById('errorMessage').textContent = errorMessage; // setto il testo di "errorMessage in base a ciò che c'è nella query string
+        }
+    </script>
+    
+    
+    
 </FORM>
 </body>
 </html>

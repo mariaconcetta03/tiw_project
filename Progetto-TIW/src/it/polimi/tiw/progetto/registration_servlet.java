@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @WebServlet("/RegistrationServlet")
-public class registration_servlet extends HttpServlet {
+public class RegistrationServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -29,14 +29,13 @@ public class registration_servlet extends HttpServlet {
 
         // if confirmation password is different from the password
         if(!password.equals(confirmPassword)){
-            request.setAttribute("errorMessage", "Le password non coincidono. Riprova.");
-            RequestDispatcher dispatcher = request.getRequestDispatcher("registration.html");
-            dispatcher.forward(request, response);
-//            out.println("<html><body>");
-//            out.println("Le password non coincidono. Riprova.");
-//            out.println("<a href='registration.html'>Clicca qui per tornare alla pagina di registrazione</a>");
-//            out.println("</body></html>");
-            return;
+          String errorMessage = "Le due password non coincidono. Riprova";
+            // Reindirizza di nuovo alla pagina HTML con il messaggio di errore nella query string
+            response.sendRedirect("/registration.html?error=" + java.net.URLEncoder.encode(errorMessage, "UTF-8"));
+        } else {
+            // Se non ci sono errori, procediamo in home page
+            response.sendRedirect("/home_page.html");
+        }
         }
     }
 
