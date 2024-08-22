@@ -31,10 +31,10 @@ public class RegistrationServlet extends HttpServlet {
         if(!password.equals(confirmPassword)){
           String errorMessage = "Le due password non coincidono. Riprova";
             // Reindirizza di nuovo alla pagina HTML con il messaggio di errore nella query string
-            response.sendRedirect("/registration.html?error=" + java.net.URLEncoder.encode(errorMessage, "UTF-8"));
+            response.sendRedirect("registration.html?error=" + java.net.URLEncoder.encode(errorMessage, "UTF-8"));
         } else {
             // Se non ci sono errori, procediamo in home page
-            response.sendRedirect("/home_page.html");
+            response.sendRedirect("tiw_project/home_page.html");
         }
         }
     }

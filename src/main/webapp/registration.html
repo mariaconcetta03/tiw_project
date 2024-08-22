@@ -10,7 +10,7 @@
 
 <body> <!--username, email, pw , ripeti pw-->
 <FORM
-        action = "/RegistrationServlet"
+        action = "RegistrationServlet"
         method = "post">
     <P>
         <b>Crea un nuovo username:</b><br>
@@ -43,7 +43,7 @@
         <!-- Qui verrà visualizzato il messaggio di errore -->
         <p id="errorMessage"></p>
     </div>
-
+	
     <script>
         // Estrai il parametro "error" dall'URL e visualizzalo se esiste
         const params = new URLSearchParams(window.location.search); // prendo tutti i parametri dell'URL
