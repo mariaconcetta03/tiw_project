@@ -14,6 +14,7 @@
         method = "post">
     <P>
         <b>Crea un nuovo username:</b><br>
+          <i>Deve contenere al massimo 50 caratteri </i> <br>
         <INPUT type="text"  name = "username" required>
     </P>
     <P>
@@ -22,17 +23,17 @@
     </P>
     <P>
         <b>Inserisci una password:</b><br>
-        <i>Deve contenere almeno 8 caratteri, tra cui una maiuscola, una minuscola, un numero e un carattere speciale </i> <br>
+        <i>Deve contenere almeno 8 caratteri e al massimo 50, tra cui una maiuscola, una minuscola, un numero e un carattere speciale </i> <br>
         <!--   (?=.*\d) ALMENO UN NUMERO
                (?=.*[a-z]) ALMENO UNA MINUSCOLA
                (?=.*[A-Z]) ALMENO UNA MAIUSCOLA
                (?=.*[@#$%^&+=]) ALMENO UN CARATTERE SPECIALE
                {8,} MINIMO 8 CARATTERI -->
-        <INPUT type="password" name = "password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!£-]).{8,}" required>
+        <INPUT type="password" name = "password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!£-]).{8,50}" required>
     </P>
     <P>
         <b>Ripeti password:</b><br>
-        <INPUT type="password" name = "password_conf" required>
+        <INPUT type="password" name = "password_conf" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!£-]).{8,50}" required>
     </P>
     <INPUT type = 'submit' VALUE = REGISTRATI>
         
