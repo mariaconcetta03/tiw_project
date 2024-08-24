@@ -19,36 +19,37 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/RegistrationServlet")
 public class RegistrationServlet extends HttpServlet {
 	
-     @SuppressWarnings("finally")
+    
 	private boolean insertUser(String user, String pass, String em)  {
-    	 final String JDBC_URL = "jdbc:mysql://localhost:3306/User's_info";
-    	 final String JDBC_USER = "username";
-    	 final String JDBC_PASSWORD = "password";
-    	 final String JDBC_EMAIL = "email";
+    	 final String JDBC_URL = "jdbc:mysql://localhost:3306/tiw_project?serverTimezone=UTC";
+    	 final String JDBC_USER = "root";
+    	 final String JDBC_PASSWORD = "iononsonotu";
 
     	 Connection connection = null;
          PreparedStatement preparedStatement = null;
 
          try {
              Class.forName("com.mysql.cj.jdbc.Driver");
-             connection = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_EMAIL);
+             connection = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD);
 
-             String insertSQL = "INSERT INTO User's_info (username, password, email) VALUES (?, ?, ?)";
+             String insertSQL = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
              preparedStatement = connection.prepareStatement(insertSQL);
              preparedStatement.setString(1, user);
              preparedStatement.setString(2, pass);
              preparedStatement.setString(3, em);
 
              preparedStatement.executeUpdate();
-          
+             return true;
          } catch (ClassNotFoundException e) {
              System.err.println("Driver JDBC non trovato: " + e.getMessage());
-       
+             return false;
          } catch (SQLException e) {
         	 if (e.getSQLState().equals("23000")) { // Codice di errore SQL per violazione di vincolo
-                 System.out.println("Username già esistente.");
+                 System.out.println("Username o e-mail già esistente.");
+                 return false;
              } else {
                  e.printStackTrace();
+                 return false;
              }
 		} finally {
              try {
@@ -56,9 +57,7 @@ public class RegistrationServlet extends HttpServlet {
                  if (connection != null) connection.close();
              } catch (SQLException e) {
                  e.printStackTrace();
-                 return false;
              }
-             return true;
          }
      
     	
