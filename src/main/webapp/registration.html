@@ -39,14 +39,15 @@
         
         
         
-           <!-- Messaggio di errore -->
+    <!-- Messaggio di errore -->
     <div style="color: red;">
         <!-- Qui verrà visualizzato il messaggio di errore -->
         <p id="errorMessage"></p>
     </div>
+    
 	
     <script>
-        // Estrai il parametro "error" dall'URL e visualizzalo se esiste
+        // Estrae il parametro "error" dall'URL e, se presente, lo visualizza
         const params = new URLSearchParams(window.location.search); // prendo tutti i parametri dell'URL
         const errorMessage = params.get('error'); // prendo il parametro ERROR nell'url
         if (errorMessage) {

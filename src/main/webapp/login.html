@@ -10,20 +10,37 @@
 
 <body> <!--username, pw-->
 <FORM
-        action = "home_page.html"
+        action = "LoginServlet"
         method = "post" >
 
   <P>
-    <b>Username:</b>
-    <INPUT type="text" required>
+    <b>E-mail:</b><br>
+    <INPUT type="email"  name = "email" required>
   </P>
 
   <P>
-    <b>Password:</b>
-    <INPUT type="password" required>
+    <b>Password:</b><br>
+    <INPUT type="password" name = "password" required>
   </P>
 
   <INPUT type = 'submit' VALUE = LOGIN>
+
+
+
+    <!-- Messaggio di errore -->
+    <div style="color: red;">
+        <!-- Qui verrà visualizzato il messaggio di errore -->
+        <p id="errorMessage"></p>
+    </div>
+
+ 	<script>
+        // Estrae il parametro "error" dall'URL e, se presente, lo visualizza
+        const params = new URLSearchParams(window.location.search); // prendo tutti i parametri dell'URL
+        const errorMessage = params.get('error'); // prendo il parametro ERROR nell'url
+        if (errorMessage) {
+            document.getElementById('errorMessage').textContent = errorMessage; // setto il testo di "errorMessage in base a ciò che c'è nella query string
+        }
+    </script>
 
 </FORM>
 </body>

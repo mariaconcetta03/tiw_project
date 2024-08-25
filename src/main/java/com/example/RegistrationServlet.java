@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/RegistrationServlet")
 public class RegistrationServlet extends HttpServlet {
 	
+	private boolean connectionError = false;
     
 	private boolean insertUser(String user, String pass, String em)  {
     	 final String JDBC_URL = "jdbc:mysql://localhost:3306/tiw_project?serverTimezone=UTC";
@@ -42,6 +43,8 @@ public class RegistrationServlet extends HttpServlet {
              return true;
          } catch (ClassNotFoundException e) {
              System.err.println("Driver JDBC non trovato: " + e.getMessage());
+             e.printStackTrace();
+             connectionError=true;
              return false;
          } catch (SQLException e) {
         	 if (e.getSQLState().equals("23000")) { // Codice di errore SQL per violazione di vincolo
@@ -49,6 +52,7 @@ public class RegistrationServlet extends HttpServlet {
                  return false;
              } else {
                  e.printStackTrace();
+                 connectionError=true;
                  return false;
              }
 		} finally {
@@ -62,6 +66,7 @@ public class RegistrationServlet extends HttpServlet {
      
     	
      }
+	
 	
 	
 	
@@ -79,13 +84,17 @@ public class RegistrationServlet extends HttpServlet {
         response.setContentType("text/html");
         PrintWriter out = response.getWriter();
         
-		//TODO fare controllo dei requisiti della pw
-        //rquisiti email
-        //username dev'essere unico 
-        
         String errorMessage;
-      
+      	
+      	// username ed e-mail sono unici o no?
         unique = insertUser(username, password, email);
+        
+        // caso di errore nella comunicazione col server
+        if (!unique && connectionError) {
+			errorMessage = "C'è stato un errore durante la comunicazione con il server SQL";
+            response.sendRedirect("registration.html?error=" + java.net.URLEncoder.encode(errorMessage, "UTF-8"));
+            return;
+		}
         
         if(username.length() > 50){
         	errorMessage = "L'username non può superare la lunghezza di 50 caratteri. Riprova.";
