@@ -14,6 +14,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 
 @WebServlet("/RegistrationServlet")
@@ -116,9 +117,10 @@ public class RegistrationServlet extends HttpServlet {
 		        		 errorMessage = "La password non soddisfa i requisiti richiesti. Riprova.";
 		            response.sendRedirect("registration.html?error=" + java.net.URLEncoder.encode(errorMessage, "UTF-8"));
 		        	} else {
+		        		HttpSession session = request.getSession();
+		        		session.setAttribute("email", email); // Salviamo l'email nella sessione, perchè è quella del PROPRIETARIO delle cartelle'
 		            // Se non ci sono errori, procediamo in home page
-		            response.sendRedirect("home_page.html");
-		        	}
+		        		response.sendRedirect("http://localhost:8080/tiw_project/HomeServlet");		        	}
 		        }
 	        }
         }

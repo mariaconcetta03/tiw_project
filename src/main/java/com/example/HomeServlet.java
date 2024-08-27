@@ -18,9 +18,13 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 @WebServlet("/HomeServlet")
 public class HomeServlet extends HttpServlet {
+
+	List<Folder> allFolders = new ArrayList<>();
+	String user = null;
 
 	// Classe per rappresentare una cartella
 	class Folder {
@@ -42,47 +46,15 @@ public class HomeServlet extends HttpServlet {
 	}
 
 	// Metodo per recuperare tutte le cartelle dal database
-	private List<Folder> getFoldersFromDB() {
+	private void getFoldersFromDB() {
 		final String JDBC_URL = "jdbc:mysql://localhost:3306/tiw_project?serverTimezone=UTC";
 		final String JDBC_USER = "root";
 		final String JDBC_PASSWORD = "iononsonotu";
-		List<Folder> allFolders = new ArrayList<>();
 
-		try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD);
-				PreparedStatement statement = connection
-						.prepareStatement("SELECT id, proprietario, nome, data_creazione, sopracartella FROM cartella");
-				ResultSet resultSet = statement.executeQuery()) {
-
-			while (resultSet.next()) {
-				Integer id = resultSet.getInt("id");
-				String proprietario = resultSet.getString("proprietario");
-				String nome = resultSet.getString("nome");
-				Date data_creazione = resultSet.getDate("data");
-				// se sopracartella è diverso da null, allora metto ID della sopracartella,
-				// altrimenti metto NULL
-				Integer sopracartella = resultSet.getObject("sopracartella") != null ? resultSet.getInt("sopracartella")
-						: null;
-				Folder folderToAdd = new Folder(id, proprietario, nome, data_creazione, sopracartella);
-				folderToAdd.sottocartelle = getSubfolders(folderToAdd.id);
-				allFolders.add(folderToAdd);
-			}
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-
-		return allFolders;
-	}
-
-	// Metodo per recuperare tutte le sottocartelle di una specifica cartella
-	private List<Folder> getSubfolders(Integer idToSearch) {
+		// inizializzazione delle variabili necessarie per la query
 		Connection connection = null;
 		PreparedStatement preparedStatement = null;
 		ResultSet resultSet = null;
-		final String JDBC_URL = "jdbc:mysql://localhost:3306/tiw_project?serverTimezone=UTC";
-		final String JDBC_USER = "root";
-		final String JDBC_PASSWORD = "iononsonotu";
-		List<Folder> subFolders = new ArrayList<>();
 
 		// connessione al server SQL
 		try {
@@ -92,99 +64,149 @@ public class HomeServlet extends HttpServlet {
 			e.printStackTrace();
 		}
 
-		String sql = "SELECT * FROM cartella WHERE sopracartella = ?";
+		// prepariamo la query SQL
+		// prepared statements per evitare SQL-Injection
+		String sql = "SELECT * FROM cartella WHERE sopracartella is NULL and proprietario = ?";
 		try {
 			preparedStatement = connection.prepareStatement(sql);
-			preparedStatement.setInt(1, idToSearch);
+			preparedStatement.setString(1, user);
+			//preparedStatement.setNull(1, java.sql.Types.INTEGER); // prendiamo in considerazione le cartelle più esterne
+																	// (le quali possono avere sottocartelle)
+
+			// riceviamo il risultato della query SQL
 			resultSet = preparedStatement.executeQuery();
 
 			while (resultSet.next()) {
 				Integer id = resultSet.getInt("id");
 				String proprietario = resultSet.getString("proprietario");
 				String nome = resultSet.getString("nome");
-				Date data_creazione = resultSet.getDate("data");
+				Date data_creazione = resultSet.getDate("data_creazione");
 				// se sopracartella è diverso da null, allora metto ID della sopracartella,
 				// altrimenti metto NULL
 				Integer sopracartella = resultSet.getObject("sopracartella") != null ? resultSet.getInt("sopracartella")
 						: null;
-				Folder folderToAdd = new Folder(id, proprietario, nome, data_creazione, sopracartella);
+				Folder folderToAdd = new Folder(id, proprietario, nome, data_creazione, sopracartella); // aggiungo la
+																										// cartella più
+																										// esterna
+				folderToAdd.sottocartelle = null; // default
+				folderToAdd.sottocartelle = getSubfolders(folderToAdd.id);
+				allFolders.add(folderToAdd);
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	// Metodo per recuperare tutte le sottocartelle di una specifica cartella
+	private List<Folder> getSubfolders(Integer idToSearch) {
+		final String JDBC_URL = "jdbc:mysql://localhost:3306/tiw_project?serverTimezone=UTC";
+		final String JDBC_USER = "root";
+		final String JDBC_PASSWORD = "iononsonotu";
+		List<Folder> subFolders = new ArrayList<>();
+
+		// inizializzazione delle variabili necessarie per la query
+		Connection connection = null;
+		PreparedStatement preparedStatement = null;
+		ResultSet resultSet = null;
+
+		// connessione al server SQL
+		try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			connection = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD);
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+
+		// prepariamo la query SQL
+		// prepared statements per evitare SQL-Injection
+		String sql = "SELECT * FROM cartella WHERE sopracartella = ? and proprietario = ?";
+		try {
+			preparedStatement = connection.prepareStatement(sql);
+			preparedStatement.setInt(1, idToSearch); // prendiamo in considerazione le cartelle più esterne (le quali
+														// possono avere sottocartelle)
+														// per evitare sql injection (un utente malevolo saprebbe i
+														// valori da utilizare) quindi si settano man mano i valori
+			preparedStatement.setString(2, user);
+
+			// riceviamo il risultato della query SQL
+			resultSet = preparedStatement.executeQuery();
+
+			while (resultSet.next()) {
+				Integer id = resultSet.getInt("id");
+				String proprietario = resultSet.getString("proprietario");
+				String nome = resultSet.getString("nome");
+				Date data_creazione = resultSet.getDate("data_creazione");
+				// se sopracartella è diverso da null, allora metto ID della sopracartella,
+				// altrimenti metto NULL
+				Integer sopracartella = resultSet.getObject("sopracartella") != null ? resultSet.getInt("sopracartella")
+						: null;
+				Folder folderToAdd = new Folder(id, proprietario, nome, data_creazione, sopracartella); // aggiungo la
+																										// cartella più
+																										// esterna
+				folderToAdd.sottocartelle = null; // default
+				folderToAdd.sottocartelle = getSubfolders(folderToAdd.id);
 				subFolders.add(folderToAdd);
 			}
 
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-
 		return subFolders;
 	}
- 
+	
+	
 
 
-///TODO da rivedere generatehtmlfolders 
 	// Metodo per generare il codice HTML ricorsivamente
-	// Alla prima chiamata io passo la lista di TUTTI i folders. 
-	//Inizia a mettere il primo folder
-	private void generateHtmlForFolder(PrintWriter out, List<Folder> folders) {
-		List<Folder> allFolders = folders;
-		
-		for(Folder f: folders) {
-			out.println("<li class=\"folder\"> <a href=\"contenuti.html\">" + f.nome + "</a>"); // metto il nodo della lista (cartella esterna)
-			if (!f.sottocartelle.isEmpty()) { // se ci sono delle sottocartelle
-               	out.println("<ul>"); // inizio il nodo delle sottocartelle
-               	for(Folder f1:allFolders){ // cerco la sottocartella in tutte le cartelle (li ho le info salvate)
-                       if (f1.id.equals(f.id)) {
-                    	   break;
-                       }
-                       List<Folder> f1sub = new ArrayList<>();
-                       f1sub.add(f1);
-                       generateHtmlForFolder(out, f1sub); // genero il codice di quella sottocartella
-                   }
-                   			out.println("</ul>"); // finito il nodo delle sottocartelle
-
+	// Inizia a mettere il primo folder
+	private void generateHtmlForFolder(PrintWriter out, Folder f) {
+		out.println("<li class=\"folder\"> <a href=\"contenuti.html\">" + f.nome + "</a>"); // creo la cartella più esterna
+        if (f.sottocartelle != null) { // se ho sottocartelle, allora chiamo la funzione ricorsivamente per tutte le sottocartelle
+            out.println("<ul>"); // inizia la lista non ordinata
+            for (Folder sub : f.sottocartelle) { 
+                generateHtmlForFolder(out, sub); // chiamata ricorsiva 
             }
-            		out.println("</li>"); // chiudo il nodo della lista esterna
-
-		}
-	}
-		o
-
-
+            out.println("</ul>"); // fine della lista non ordinata --- per sottocartelle uso le "ul"
+        }
+        out.println("</li>"); // fine della cartella più esterna -- list item
+    }
+		
+//TODO : vedere come invalidare sessioni/non far caricare stesse cartelle di utenti diversi
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// Connessione al database e recupero delle cartelle
-		List<Folder> folders = getFoldersFromDatabase();
+				
+				HttpSession session = request.getSession(false); //false->check se sessione esiste oppure no (nel caso in cui non esista restituisce null)
+				if(session!= null) {
+					user = session.getAttribute("email").toString();
+	        		session.invalidate();	        	
+					}
+				
 
-		// Creazione della mappa delle cartelle organizzate per ID
-		Map<Integer, Folder> folderMap = new HashMap<>();
-		List<Folder> rootFolders = new ArrayList<>();
-
-		for (Folder folder : folders) {
-			folderMap.put(folder.id, folder);
-			if (folder.sopracartella == null) {
-				rootFolders.add(folder);
-			} else {
-				Folder parentFolder = folderMap.get(folder.parentId);
-				if (parentFolder != null) {
-					parentFolder.children.add(folder);
-				}
-			}
-		}
-
-		// Impostazione della risposta HTML
+		// Connessione al database e recupero delle cartelle (vengono messe in allFolders)
+		getFoldersFromDB();
+		
+		// Impostazione della risposta (pagina HTML)
 		response.setContentType("text/html");
 		PrintWriter out = response.getWriter();
 
-		out.println("<html><head><title>Folder Structure</title></head><body>");
-		out.println("<h1>Folder Structure</h1>");
+		out.println("<html lang=\"it\"><head><meta charset=\"UTF-8\"><title>Home Page</title><meta charset=\"UTF-8\">\r\n"
+				+ "<title>Home Page</title>\r\n"
+				+ "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n"
+				+ "<link rel=\"stylesheet\" href=\"FolderStyle.css\"></head><body>");
+		out.println("<h1>Le tue cartelle:</h1>");
+		out.println("<div class=\"tree\">");
 		out.println("<ul>");
 
 		// Generazione ricorsiva del codice HTML
-		for (Folder folder : rootFolders) {
+		for (Folder folder : allFolders) {
 			generateHtmlForFolder(out, folder);
 		}
-
+		
 		out.println("</ul>");
+		out.println("</div>");
 		out.println("</body></html>");
 	}
+}
