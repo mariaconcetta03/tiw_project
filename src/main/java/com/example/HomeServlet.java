@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -22,9 +23,6 @@ import javax.servlet.http.HttpSession;
 
 @WebServlet("/HomeServlet")
 public class HomeServlet extends HttpServlet {
-
-	List<Folder> allFolders = new ArrayList<>();
-	String user = null;
 
 	// Classe per rappresentare una cartella
 	class Folder {
@@ -46,7 +44,9 @@ public class HomeServlet extends HttpServlet {
 	}
 
 	// Metodo per recuperare tutte le cartelle dal database
-	private void getFoldersFromDB() {
+	private List<Folder> getFoldersFromDB(String user) {
+		List<Folder> allFolders = new ArrayList<>();
+
 		final String JDBC_URL = "jdbc:mysql://localhost:3306/tiw_project?serverTimezone=UTC";
 		final String JDBC_USER = "root";
 		final String JDBC_PASSWORD = "iononsonotu";
@@ -70,8 +70,9 @@ public class HomeServlet extends HttpServlet {
 		try {
 			preparedStatement = connection.prepareStatement(sql);
 			preparedStatement.setString(1, user);
-			//preparedStatement.setNull(1, java.sql.Types.INTEGER); // prendiamo in considerazione le cartelle più esterne
-																	// (le quali possono avere sottocartelle)
+			// preparedStatement.setNull(1, java.sql.Types.INTEGER); // prendiamo in
+			// considerazione le cartelle più esterne
+			// (le quali possono avere sottocartelle)
 
 			// riceviamo il risultato della query SQL
 			resultSet = preparedStatement.executeQuery();
@@ -89,17 +90,18 @@ public class HomeServlet extends HttpServlet {
 																										// cartella più
 																										// esterna
 				folderToAdd.sottocartelle = null; // default
-				folderToAdd.sottocartelle = getSubfolders(folderToAdd.id);
+				folderToAdd.sottocartelle = getSubfolders(folderToAdd.id, user);
 				allFolders.add(folderToAdd);
 			}
 
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		return allFolders;
 	}
 
 	// Metodo per recuperare tutte le sottocartelle di una specifica cartella
-	private List<Folder> getSubfolders(Integer idToSearch) {
+	private List<Folder> getSubfolders(Integer idToSearch, String user) {
 		final String JDBC_URL = "jdbc:mysql://localhost:3306/tiw_project?serverTimezone=UTC";
 		final String JDBC_USER = "root";
 		final String JDBC_PASSWORD = "iononsonotu";
@@ -145,7 +147,7 @@ public class HomeServlet extends HttpServlet {
 																										// cartella più
 																										// esterna
 				folderToAdd.sottocartelle = null; // default
-				folderToAdd.sottocartelle = getSubfolders(folderToAdd.id);
+				folderToAdd.sottocartelle = getSubfolders(folderToAdd.id, user);
 				subFolders.add(folderToAdd);
 			}
 
@@ -154,57 +156,74 @@ public class HomeServlet extends HttpServlet {
 		}
 		return subFolders;
 	}
-	
-	
-
 
 	// Metodo per generare il codice HTML ricorsivamente
 	// Inizia a mettere il primo folder
-	private void generateHtmlForFolder(PrintWriter out, Folder f) {
-		out.println("<li class=\"folder\"> <a href=\"contenuti.html\">" + f.nome + "</a>"); // creo la cartella più esterna
-        if (f.sottocartelle != null) { // se ho sottocartelle, allora chiamo la funzione ricorsivamente per tutte le sottocartelle
-            out.println("<ul>"); // inizia la lista non ordinata
-            for (Folder sub : f.sottocartelle) { 
-                generateHtmlForFolder(out, sub); // chiamata ricorsiva 
-            }
-            out.println("</ul>"); // fine della lista non ordinata --- per sottocartelle uso le "ul"
-        }
-        out.println("</li>"); // fine della cartella più esterna -- list item
-    }
+	private void generateHtmlForFolder(PrintWriter out, Folder f, HttpSession session) {
 		
-//TODO : vedere come invalidare sessioni/non far caricare stesse cartelle di utenti diversi
+		// Prendiamo la map dei token dalla sessione
+		Map<String, Integer> folderTokens = (Map<String, Integer>) session.getAttribute("folderTokens");
+		
+   		// aggiungiamo il token della nuova cartella
+        String token = UUID.randomUUID().toString(); // Un token casuale o identificatore offuscato
+        folderTokens.put(token, f.id);
+        
+        // aggiorniamo i token della sessione
+    	session.setAttribute("folderTokens", folderTokens);    
+    
+    
+		out.println("<li class=\"folder\"> <a href='ContenutiServlet?folderToken=" + token + "'>" + f.nome + "</a><br>"); // creo la cartella più
+											// esterna
+		
+		if (f.sottocartelle != null) { // se ho sottocartelle, allora chiamo la funzione ricorsivamente per tutte le
+										// sottocartelle
+			out.println("<ul>"); // inizia la lista non ordinata
+			for (Folder sub : f.sottocartelle) {
+				generateHtmlForFolder(out, sub, session); // chiamata ricorsiva
+			}
+			out.println("</ul>"); // fine della lista non ordinata --- per sottocartelle uso le "ul"
+		}
+		out.println("</li>"); // fine della cartella più esterna -- list item
+	}
+
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 				
-				HttpSession session = request.getSession(false); //false->check se sessione esiste oppure no (nel caso in cui non esista restituisce null)
-				if(session!= null) {
-					user = session.getAttribute("email").toString();
-	        		session.invalidate();	        	
-					}
-				
+		Map<String, Integer> folderTokens = new HashMap<>();
+		List<Folder> allFolders = new ArrayList<>();
+		String user = null;
 
-		// Connessione al database e recupero delle cartelle (vengono messe in allFolders)
-		getFoldersFromDB();
-		
+		HttpSession session = request.getSession(false); // false -> check se sessione esiste oppure no (nel caso in cui
+															// non esista restituisce null)
+		if (session != null) {
+			user = session.getAttribute("email").toString();
+			session.setAttribute("folderTokens", folderTokens);
+		}
+
+		// Connessione al database e recupero delle cartelle (vengono messe in
+		// allFolders)
+		allFolders = getFoldersFromDB(user);
+
 		// Impostazione della risposta (pagina HTML)
 		response.setContentType("text/html");
 		PrintWriter out = response.getWriter();
 
-		out.println("<html lang=\"it\"><head><meta charset=\"UTF-8\"><title>Home Page</title><meta charset=\"UTF-8\">\r\n"
-				+ "<title>Home Page</title>\r\n"
-				+ "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n"
-				+ "<link rel=\"stylesheet\" href=\"FolderStyle.css\"></head><body>");
+		out.println(
+				"<html lang=\"it\"><head><meta charset=\"UTF-8\"><title>Home Page</title><meta charset=\"UTF-8\">\r\n"
+						+ "<title>Home Page</title>\r\n"
+						+ "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n"
+						+ "<link rel=\"stylesheet\" href=\"FolderStyle.css\"></head><body>");
 		out.println("<h1>Le tue cartelle:</h1>");
 		out.println("<div class=\"tree\">");
 		out.println("<ul>");
 
 		// Generazione ricorsiva del codice HTML
 		for (Folder folder : allFolders) {
-			generateHtmlForFolder(out, folder);
+			generateHtmlForFolder(out, folder, session);
 		}
-		
+
 		out.println("</ul>");
 		out.println("</div>");
 		out.println("</body></html>");

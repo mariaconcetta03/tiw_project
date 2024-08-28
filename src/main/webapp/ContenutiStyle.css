@@ -1,0 +1,81 @@
+@charset "UTF-8";
+     
+/*       
+.tree li.file::before {
+  content: '📄'; Simbolo per i file
+} */
+   
+.tree body {
+   font-family: Arial, sans-serif;
+}
+
+.tree ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    position: relative;
+}
+
+.tree ul ul {
+    margin-left: 20px;
+}
+
+.tree li {
+    margin: 0;
+    padding: 0 12px;
+    line-height: 20px;
+    position: relative;
+}
+
+.tree li::before {
+    content: '📁'; /* Simbolo per le cartelle */
+    margin-right: 8px;
+    position: absolute;
+    top: 0;
+    left: -10px;
+    border-left: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    width: 30px;
+    height: 40px;
+   
+}
+
+.tree li:last-child::before {
+    border-left: 1px solid #ccc;
+    border-bottom: none;
+}
+
+
+.folder a {
+    color: black;
+    text-decoration: underlined;
+}
+
+/*
+/* Serve per nascondere la checkbox: essa è invisibile all'utente, ma presente, in modo che
+l'utente stesso possa espandere o comprimere la checkbox 
+display: none ==> non viene mostrato nulla */
+.tree input[type="checkbox"] {
+    display: none;
+}
+
+
+/* Serve per nascondere ogni UL (unordered list) che segue una label. Quindi, per impostazione 
+predefinita, le liste nidificate nel menu ad albero sono nascoste 
+display: none ==> non viene mostrato nulla */
+.tree input[type="checkbox"] + label + ul {
+    display: none;
+}
+
+
+/* Serve per mostrare il contenuto (ovvero la lista non ordinata UL), nel momento in cui una
+checkbox viene selezionata (ovvero viene premuta) 
+display: block ==> viene visualizzato il blocco ed è possibile specificare 
+l'altezza (height), i margini (margin), e i padding (padding) */
+.tree input[type="checkbox"]:checked + label + ul {
+    display: block;
+}
+
+
+
+   
