@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -187,6 +188,8 @@ public class ContenutiServlet extends HttpServlet {
 		String user = null;
 		String folderToken = request.getParameter("folderToken");
         Map<String, Integer> folderTokens = (Map<String, Integer>) session.getAttribute("folderTokens");
+        Map<String, Integer> fileTokens = new HashMap<>();
+
         if (session != null) {
         	user = session.getAttribute("email").toString();
         }
@@ -250,12 +253,20 @@ public class ContenutiServlet extends HttpServlet {
 
 		// metto tutte le cartelle e tutti i file trovati
 		for(Folder f: folders) {
-			out.println("<li class=\"folder\">"+ f.nome +"<a href=\"accedi"+"/a>"+ "<a href=\"sposta"+"/a>"+"</li>");
+			out.println("<li class=\"folder\">"+ f.nome +"</li>");
 		}
 		
 		for(File f: files) {
-			out.println("<li class=\"file\">"+ f.nome +"<a href=\"accedi"+"/a>"+ "<a href=\"sposta"+"/a>"+"</li>");
+		    String token = UUID.randomUUID().toString(); // Un token casuale o identificatore offuscato
+
+		    out.println("<li class=\"file\">" + f.nome 
+		    + " <a href=\"AccediServlet?fileToken=" + token + "\">   Accedi</a>" 
+		    + " <a href=\"SpostaServlet?fileToken=" + token + "\">   Sposta</a>"
+		    + "</li>");		
+		    fileTokens.put(token, f.id);
 		}
+		session.setAttribute("fileTokens", fileTokens);
+		
 
 		out.println("</ul>");
 		out.println("</div>");
