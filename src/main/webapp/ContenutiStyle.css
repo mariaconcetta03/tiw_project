@@ -1,12 +1,27 @@
 @charset "UTF-8";
      
-/*       
+.tree li::before {
+    content: ''; /* Rimuove qualsiasi icona predefinita per tutti gli <li> */
+}
+       
+.tree li.folder::before {
+  content: '📁'; /* Simbolo per le cartelle */
+  margin-right: 8px;
+  position: absolute;
+  top: 0;
+  left: -10px;
+  width: 30px;
+  height: 20px;
+}
+
 .tree li.file::before {
-  content: '📄'; Simbolo per i file
-} */
-   
-.tree body {
-   font-family: Arial, sans-serif;
+  content: '📄'; /* Simbolo per i documenti */
+  margin-right: 8px;
+  position: absolute;
+  top: 0;
+  left: -10px;
+  width: 30px;
+  height: 20px;
 }
 
 .tree ul {
@@ -27,29 +42,16 @@
     position: relative;
 }
 
-.tree li::before {
-    content: '📁'; /* Simbolo per le cartelle */
-    margin-right: 8px;
-    position: absolute;
-    top: 0;
-    left: -10px;
-    border-left: 1px solid #ccc;
-    border-bottom: 1px solid #ccc;
-    width: 30px;
-    height: 40px;
-   
-}
-
-.tree li:last-child::before {
+.tree li.folder:last-child::before {
     border-left: 1px solid #ccc;
     border-bottom: none;
 }
 
-
 .folder a {
     color: black;
-    text-decoration: underlined;
+    text-decoration: underline;
 }
+
 
 /*
 /* Serve per nascondere la checkbox: essa è invisibile all'utente, ma presente, in modo che

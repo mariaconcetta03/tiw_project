@@ -184,10 +184,12 @@ public class ContenutiServlet extends HttpServlet {
 			throws ServletException, IOException {
 		
 		HttpSession session = request.getSession(false); // false -> check se sessione esiste oppure no (nel caso in cui non esista restituisce null)
-	
+		String user = null;
 		String folderToken = request.getParameter("folderToken");
         Map<String, Integer> folderTokens = (Map<String, Integer>) session.getAttribute("folderTokens");
-        String user = session.getAttribute("user").toString();
+        if (session != null) {
+        	user = session.getAttribute("email").toString();
+        }
         Integer folderId = 0;
         String folderName  = null;
         List<Folder> folders = null;
@@ -223,7 +225,9 @@ public class ContenutiServlet extends HttpServlet {
 			
 			// riceviamo il risultato della query SQL
 			resultSet = preparedStatement.executeQuery();
-			 folderName = resultSet.getString("nome");
+			if (resultSet.next()) {
+		        folderName = resultSet.getString("nome");
+		    }
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -251,7 +255,6 @@ public class ContenutiServlet extends HttpServlet {
 		
 		for(File f: files) {
 			out.println("<li class=\"file\">"+ f.nome +"<a href=\"accedi"+"/a>"+ "<a href=\"sposta"+"/a>"+"</li>");
-	
 		}
 
 		out.println("</ul>");
