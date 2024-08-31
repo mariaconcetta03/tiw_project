@@ -190,13 +190,14 @@ public class HomeServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-				
+
 		Map<String, Integer> folderTokens = new HashMap<>();
 		List<Folder> allFolders = new ArrayList<>();
 		String user = null;
 
 		HttpSession session = request.getSession(false); // false -> check se sessione esiste oppure no (nel caso in cui
 															// non esista restituisce null)
+		
 		if (session != null) {
 			user = session.getAttribute("email").toString();
 			session.setAttribute("folderTokens", folderTokens);
@@ -215,6 +216,10 @@ public class HomeServlet extends HttpServlet {
 						+ "<title>Home Page</title>\r\n"
 						+ "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n"
 						+ "<link rel=\"stylesheet\" href=\"FolderStyle.css\"></head><body>");
+		 
+		// Link per fare il logout (rimando alla servlet di logout)
+        out.println("<a href=\"LogoutServlet\">Logout</a>");
+        
 		out.println("<h1>Le tue cartelle:</h1>");
 		out.println("<div class=\"tree\">");
 		out.println("<ul>");

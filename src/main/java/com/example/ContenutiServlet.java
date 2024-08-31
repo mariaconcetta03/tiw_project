@@ -247,6 +247,19 @@ public class ContenutiServlet extends HttpServlet {
 				+ "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n"
 				+ "<link rel=\"stylesheet\" href=\"ContenutiStyle.css\">\r\n"
 				+ "</head></head><body>");
+		
+		
+        out.println("<a href=\"LogoutServlet\">Logout</a>"); // Link per fare il logout (rimando alla servlet di logout)
+        
+        // Link per tornare alla pagina precedente
+        String referer = request.getHeader("Referer");
+        if (referer == null) {
+            referer = "login.html"; // rimando alla pagina di login utente, se il Referer non è disponibile
+        }
+        // nota bene: &nbsp = 1 SPAZIO BIANCO (separa "logout" e "torna alla pagina precedente")
+        out.println("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp <a href='" + referer + "'>Torna alla pagina precedente</a>");
+        
+        
 		out.println("<h1> Contenuti della cartella: "+ folderName +"</h1>");
 		out.println("<div class=\"tree\">");
 		out.println("<ul>");

@@ -136,6 +136,20 @@ public class AccediServlet extends HttpServlet {
 					+ "<title>Info documento</title>\r\n"
 					+ "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n"
 					+ "</head></head><body>");
+			
+			
+	        out.println("<a href=\"LogoutServlet\">Logout</a>"); // Link per fare il logout (rimando alla servlet di logout)
+	        
+	        
+	        // Link per tornare alla pagina precedente
+	        String referer = request.getHeader("Referer");
+	        if (referer == null) {
+	            referer = "login.html"; // rimando alla pagina di login utente, se il Referer non è disponibile
+	        }
+	        // nota bene: &nbsp = 1 SPAZIO BIANCO (separa "logout" e "torna alla pagina precedente")
+	        out.println("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp <a href='" + referer + "'>Torna alla pagina precedente</a>");
+	        
+	        
 			out.println("<h1> Informazioni del documento selezionato: </h1>");
 			out.println("<b>E-mail del proprietario:</b> " + f.proprietario + "<br>");
 			out.println("<b>Data di creazione:</b> " + f.data_creazione + "<br>");
