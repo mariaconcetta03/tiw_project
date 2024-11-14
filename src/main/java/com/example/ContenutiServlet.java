@@ -22,8 +22,10 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 @WebServlet("/ContenutiServlet")
-public class ContenutiServlet extends HttpServlet {
-
+public class ContenutiServlet extends HttpServlet { 
+	//Lista di elemennti in una cartella qualsiasi (di root o sottocartella)
+	
+	
 	// Classe per rappresentare una cartella
 	class Folder {
 		Integer id;
@@ -252,7 +254,7 @@ public class ContenutiServlet extends HttpServlet {
         out.println("<a href=\"LogoutServlet\">Logout</a>"); // Link per fare il logout (rimando alla servlet di logout)
         
         // Link per tornare alla pagina precedente
-        String referer = request.getHeader("Referer");
+        String referer = request.getHeader("Referer"); // lista stringa riferimenti?????
         if (referer == null) {
             referer = "login.html"; // rimando alla pagina di login utente, se il Referer non è disponibile
         }
@@ -265,11 +267,11 @@ public class ContenutiServlet extends HttpServlet {
 		out.println("<ul>");
 
 		// metto tutte le cartelle e tutti i file trovati
-		for(Folder f: folders) {
+		for(Folder f: folders) { // cartelle
 			out.println("<li class=\"folder\">"+ f.nome +"</li>");
 		}
 		
-		for(File f: files) {
+		for(File f: files) { // docs
 		    String token = UUID.randomUUID().toString(); // Un token casuale o identificatore offuscato
 
 		    out.println("<li class=\"file\">" + f.nome 

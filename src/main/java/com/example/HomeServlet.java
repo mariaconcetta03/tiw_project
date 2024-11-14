@@ -157,7 +157,7 @@ public class HomeServlet extends HttpServlet {
 		return subFolders;
 	}
 
-	// Metodo per generare il codice HTML ricorsivamente
+	// Metodo per generare il codice HTML ricorsivamente dell'albero delle cartelle
 	// Inizia a mettere il primo folder
 	private void generateHtmlForFolder(PrintWriter out, Folder f, HttpSession session) {
 		

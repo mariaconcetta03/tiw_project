@@ -151,6 +151,7 @@ public class AccediServlet extends HttpServlet {
 	        
 	        
 			out.println("<h1> Informazioni del documento selezionato: </h1>");
+			out.println("<b>Nome documento:</b> " + f.nome + "<br>");
 			out.println("<b>E-mail del proprietario:</b> " + f.proprietario + "<br>");
 			out.println("<b>Data di creazione:</b> " + f.data_creazione + "<br>");
 			out.println("<b>Sommario:</b> " + f.sommario + "<br>");

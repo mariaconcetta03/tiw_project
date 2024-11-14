@@ -22,13 +22,18 @@ import javax.servlet.http.HttpSession;
 @WebServlet("/RegistrationServlet")
 public class RegistrationServlet extends HttpServlet {
 
-	// private boolean connectionError = false;
 
 	private List<Integer> insertUser(String user, String pass, String em) {
 		final String JDBC_URL = "jdbc:mysql://localhost:3306/tiw_project?serverTimezone=UTC";
 		final String JDBC_USER = "root";
 		final String JDBC_PASSWORD = "iononsonotu";
-		List<Integer> value = new ArrayList<>();
+		
+		List<Integer> value = new ArrayList<>(); 
+		/** Questo array ci serve per ritornare errori: 
+		- il primo elemento indica se lo username è unique o no
+		- il secondo elemento indica se c'è un Connection Error oppure no
+		**/
+		
 		Connection connection = null;
 		PreparedStatement preparedStatement = null;
 
@@ -42,9 +47,9 @@ public class RegistrationServlet extends HttpServlet {
 			preparedStatement.setString(2, pass);
 			preparedStatement.setString(3, em);
 
-			preparedStatement.executeUpdate();
-			value.add(1); // unique
-			value.add(0); // connectionError
+			preparedStatement.executeUpdate(); // esegue lo statement SQL
+			value.add(1); // unique (inserito valore 1 se la registrazione è andata buon fine nel primo posto)
+			value.add(0); // connectionError (zero se non ci sono errori di connessione nel secondo campo)
 
 		} catch (ClassNotFoundException e) {
 			System.err.println("Driver JDBC non trovato: " + e.getMessage());
@@ -60,23 +65,21 @@ public class RegistrationServlet extends HttpServlet {
 				e.printStackTrace();
 				value.add(0); // unique
 				value.add(1); // connectionerror
-
-				// connectionError=true;
-				// return false;
 			}
 		} finally {
 			try {
 				if (preparedStatement != null)
-					preparedStatement.close();
+					preparedStatement.close(); // chiudo un oggetto e rilascio le risorse occupate dall'oggetto stesso
 				if (connection != null)
-					connection.close();
+					connection.close(); // per chiusura connessione
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
 		}
 		return value;
-
 	}
+
+
 
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -87,13 +90,13 @@ public class RegistrationServlet extends HttpServlet {
 		String email = request.getParameter("email");
 		String password = request.getParameter("password");
 		String confirmPassword = request.getParameter("password_conf");
-		/// boolean unique = true;
 
 		response.setContentType("text/html");
-		PrintWriter out = response.getWriter();
+		//PrintWriter out = response.getWriter();
+		// così si scrive direttamente nella risposta HTTP che verrà inviata al client
+
 
 		String errorMessage;
-
 		// username ed e-mail sono unici o no?
 		List<Integer> value = insertUser(username, password, email);
 		boolean unique, connectionError;
@@ -108,7 +111,6 @@ public class RegistrationServlet extends HttpServlet {
 			connectionError = false;
 		} else {
 			connectionError = true;
-
 		}
 
 		// caso di errore nella comunicazione col server
@@ -144,7 +146,7 @@ public class RegistrationServlet extends HttpServlet {
 					} else {
 						HttpSession session = request.getSession();
 						session.setAttribute("email", email); // Salviamo l'email nella sessione, perchè è quella del
-																// PROPRIETARIO delle cartelle'
+																// PROPRIETARIO delle cartelle
 						// Se non ci sono errori, procediamo in home page
 						response.sendRedirect("http://localhost:8080/tiw_project/HomeServlet");
 					}
