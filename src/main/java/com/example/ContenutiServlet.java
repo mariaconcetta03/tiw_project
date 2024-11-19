@@ -9,6 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -186,11 +187,39 @@ public class ContenutiServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		
-		HttpSession session = request.getSession(false); // false -> check se sessione esiste oppure no (nel caso in cui non esista restituisce null)
+		HttpSession session = request.getSession(); // false -> check se sessione esiste oppure no (nel caso in cui non esista restituisce null)
 		String user = null;
 		String folderToken = request.getParameter("folderToken");
         Map<String, Integer> folderTokens = (Map<String, Integer>) session.getAttribute("folderTokens");
         Map<String, Integer> fileTokens = new HashMap<>();
+
+		
+		// CODICE PER GESTIONE PAGINE PRECEDENTI -----------------------------
+		   // Ottieni la parte principale dell'URL
+			String currentPage = request.getRequestURL().toString();
+			
+			// Aggiungi la query string, se esiste
+			String queryString = request.getQueryString();
+			if (queryString != null) {
+			    currentPage += "?" + queryString;
+			    }
+
+        // Recupera o inizializza la cronologia nella sessione
+        LinkedList<String> history = (LinkedList<String>) session.getAttribute("pageHistory");
+        if (history == null) {
+            history = new LinkedList<>();
+        }
+
+        // Aggiungi la pagina corrente alla cronologia, evitando duplicati consecutivi
+        if (history.isEmpty() || !history.getLast().equals(currentPage)) {
+            history.add(currentPage);
+        }
+        
+        // Salva la cronologia nella sessione
+        session.setAttribute("pageHistory", history);
+		// -------------------------------------------------------------------
+
+
 
         if (session != null) {
         	user = session.getAttribute("email").toString();
@@ -251,17 +280,18 @@ public class ContenutiServlet extends HttpServlet {
 				+ "</head></head><body>");
 		
 		
-        out.println("<a href=\"LogoutServlet\">Logout</a>"); // Link per fare il logout (rimando alla servlet di logout)
+		// Link per fare il logout (rimando alla servlet di logout)
+        out.println("<a href=\"LogoutServlet\">Logout</a>"); 
         
         // Link per tornare alla pagina precedente
-        String referer = request.getHeader("Referer"); // lista stringa riferimenti?????
-        if (referer == null) {
-            referer = "login.html"; // rimando alla pagina di login utente, se il Referer non è disponibile
-        }
-        // nota bene: &nbsp = 1 SPAZIO BIANCO (separa "logout" e "torna alla pagina precedente")
-        out.println("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp <a href='" + referer + "'>Torna alla pagina precedente</a>");
-        
-        
+	        // nota bene: &nbsp = 1 SPAZIO BIANCO (separa "logout" e "torna alla pagina precedente")
+			out.println("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
+			    "<form action='BackServlet' method='post' style='display:inline;'>" +
+			    "<button type='submit' style='background:none; border:none; color:blue; text-decoration:underline; cursor:pointer;'>" +
+			    "Torna alla pagina precedente" +
+			    "</button>" +
+			    "</form>");	    
+			
 		out.println("<h1> Contenuti della cartella: "+ folderName +"</h1>");
 		out.println("<div class=\"tree\">");
 		out.println("<ul>");

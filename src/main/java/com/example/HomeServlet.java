@@ -9,6 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -195,9 +196,37 @@ public class HomeServlet extends HttpServlet {
 		List<Folder> allFolders = new ArrayList<>();
 		String user = null;
 
-		HttpSession session = request.getSession(false); // false -> check se sessione esiste oppure no (nel caso in cui
+		HttpSession session = request.getSession(); // false -> check se sessione esiste oppure no (nel caso in cui
 															// non esista restituisce null)
 		
+		// CODICE PER GESTIONE PAGINE PRECEDENTI -----------------------------
+		 // Ottieni la parte principale dell'URL
+			String currentPage = request.getRequestURL().toString();
+			
+			// Aggiungi la query string, se esiste
+			String queryString = request.getQueryString();
+			if (queryString != null) {
+			    currentPage += "?" + queryString;
+			    }
+
+        // Recupera o inizializza la cronologia nella sessione
+        LinkedList<String> history = (LinkedList<String>) session.getAttribute("pageHistory");
+        if (history == null) {
+            history = new LinkedList<>();
+        }
+
+        // Aggiungi la pagina corrente alla cronologia, evitando duplicati consecutivi
+        if (history.isEmpty() || !history.getLast().equals(currentPage)) {
+            history.add(currentPage);
+        }
+        
+        // Salva la cronologia nella sessione
+        session.setAttribute("pageHistory", history);
+		// -------------------------------------------------------------------
+		
+		
+		
+		// ricevo nome utente (email) dalla sessione e metto i foldertokens come attributi
 		if (session != null) {
 			user = session.getAttribute("email").toString();
 			session.setAttribute("folderTokens", folderTokens);

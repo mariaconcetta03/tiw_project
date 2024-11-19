@@ -95,7 +95,7 @@ public class LoginServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 				
-		HttpSession session = request.getSession(false); // false = se non esiste una sessione, allora non la creo
+		HttpSession session = request.getSession(); // false = se non esiste una sessione, allora non la creo
 	    if (session != null) {
 	        session.invalidate(); // invalido una possibile sessione precedente
 	    }
