@@ -37,12 +37,7 @@ public class BackServlet extends HttpServlet {
             System.out.println ("LISTA NULLA !!!");
         }
         
-        int i = 0;
-        for (String s: history) {
-            i ++;
-            System.out.println ("LINK" + i + ": " + s);
-        }
-        
+      
         
         if (history == null || history.size() <= 1) {
             // Se non ci sono pagine precedenti, reindirizza alla pagina home
