@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Gestione Contenuti</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="FileStyle.css">
+</head>
+<body>
+<h1>Che cosa desideri fare?</h1>
+    <!-- Bottone per azione 1 -->
+    <form action="NewRootFolderServlet" method="get">
+        <button type="submit">Nuova cartella nella ROOT</button>
+    </form>
+    <br><br>
+    
+    <!-- Bottone per azione 2 -->
+    <form action="NewSubfolderServlet" method="get">
+        <button type="submit">Nuova cartella interna</button>
+    </form>
+    <br><br>
+    
+    <!-- Bottone per azione 3 -->
+    <form action="NewFileServlet" method="get">
+        <button type="submit">Nuovo file in una cartella</button>
+    </form>
+</body>
+</html>

@@ -248,6 +248,8 @@ public class HomeServlet extends HttpServlet {
 		 
 		// Link per fare il logout (rimando alla servlet di logout)
         out.println("<a href=\"LogoutServlet\">Logout</a>");
+     	out.println ("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp"); // spaziatura
+        out.println("<a href=\"GestioneContenutiServlet\">Gestione contenuti</a>");
         
 		out.println("<h1>Le tue cartelle:</h1>");
 		out.println("<div class=\"tree\">");

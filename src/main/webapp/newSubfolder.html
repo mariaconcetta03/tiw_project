@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Nuova sottocartella</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="FileStyle.css">
+<link rel="stylesheet" href="highlightOnClick.css"> 
+</head>
+<body>
+<h1>Compila il seguente campo: </h1>
+
+<FORM
+        action = "NewSubfolderServlet"
+        method = "post" >
+
+  <P>
+    <b>Nome cartella:</b>
+    <br><br>
+    <INPUT type="text"  name = "nome" required>
+  </P>
+
+
+</FORM>
+
+<h1>Seleziona la cartella di destinazione e dopo premi "CREA": </h1>
+	<div class="tree">
+		<!-- >L'utilizzo delle classi è fondamentale per gli stili CSS. L'attributo class permette di
+		applicare uno stile CSS ad ogni classe. -->
+
+		<!-- Ci basiamo sull'utilizzo di una lista non ordinata UL (unordered list). Ogni nodo è costituito da LI -->
+
+
+		<ul>
+			<li class="folder"> <a href="#clickDiv" class="highlight" type="submit"> Cartella 1 </a>
+				<ul>
+					<li class="folder"><a href="#clickDiv" class="highlight">Cartella 1.1</a></li>
+					<li class="folder"> <label
+						for="folder1-1"><a href="#clickDiv" class="highlight">Cartella 1.2</a></label>
+						<ul>
+							<li class="folder"><a href="#clickDiv" class="highlight">Cartella 1.2.1</a>
+							</li>
+							<li class="folder"><a href="#clickDiv" class="highlight">Cartella 1.2.2 </a></li>
+						</ul></li>
+					<li class="folder"><a href="#clickDiv" class="highlight">Cartella 1.3</a></li>
+				</ul></li>
+			<li class="folder"> <label
+				for="folder2"><a href="#clickDiv" class="highlight">Cartella 2</a></label>
+				<ul>
+					<li class="folder"><a href="#clickDiv" class="highlight">Cartella 2.1</a></li>
+					<li class="folder"><a href="#clickDiv" class="highlight">Cartella 2.2</a></li>
+				</ul></li>
+		</ul>
+	</div>
+	
+	
+	<FORM
+        action = "NewSubfolderServlet"
+        method = "post" >
+
+  <INPUT type = 'submit' VALUE = CREA>
+
+</FORM>
+
+
+
+</body>
+</html>

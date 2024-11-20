@@ -1,0 +1,17 @@
+.highlight {
+    background-color: white;
+    color: black;
+    padding: 10px;
+    display: inline-block;
+    cursor: pointer;
+    border: 1px solid rgb(255, 255, 255);
+    text-decoration: none; /* Rimuove la sottolineatura */
+}
+
+/* Evidenzia quando l'elemento è cliccato (focus visibile su tastiera) */
+.highlight:focus,
+.highlight:active {
+    background-color: rgb(255, 255, 0);
+    color: rgb(0, 0, 0);
+    outline: none; /* Rimuove il contorno standard del focus */
+}
