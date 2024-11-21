@@ -107,7 +107,7 @@ public class NewRootFolderServlet extends HttpServlet {
 		PrintWriter out = response.getWriter();
 
 		out.println(
-				"<html lang=\"it\"><head><meta charset=\"UTF-8\"><title>Home Page</title><meta charset=\"UTF-8\">\r\n"
+				"<html lang=\"it\"><head><meta charset=\"UTF-8\"><title>Nouva cartella</title><meta charset=\"UTF-8\">\r\n"
 						+ "<title>Nuova cartella</title>\r\n"
 						+ "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n"
 						+ "<link rel=\"stylesheet\" href=\"FolderStyle.css\"></head><body>");
