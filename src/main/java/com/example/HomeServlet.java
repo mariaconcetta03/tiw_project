@@ -473,9 +473,24 @@ private void generateHtmlForMovingFolder(PrintWriter out, Folder f, HttpSession 
 	}
 	out.println("</li>"); // fine della cartella più esterna -- list item
  }  else {
-	 	out.println("<li class=\"folder\" style='background:yellow; border:none; color:black;'>");
+	 	out.println("<li class=\"folder\" style='background:none; border:none; color:red;'>");
 		out.println(f.nome);
-		out.println("</li>");
+		
+		// se ho delle sottocartelle, allora non posso saltarle. Infatti è possibile spostare un file da una cartella
+		// principale ad una sua sottocartella
+		if (f.sottocartelle != null) { // se ho sottocartelle, allora chiamo la funzione ricorsivamente per tutte le
+			// sottocartelle
+			out.println("<ul>"); // inizia la lista non ordinata
+			for (Folder sub : f.sottocartelle) {
+				// tolgo la formattazione precedente, poichè i figli non devono essere evidenziati in giallo
+		        out.println("<li class=\"folder\" style='background:none; border:none; color:black;'>");
+		        generateHtmlForMovingFolder(out, sub, session, originFolderID, fileToken); // chiamata ricorsiva
+		        out.println("</li>");			}
+			out.println("</ul>"); // fine della lista non ordinata --- per sottocartelle uso le "ul"
+		}
+			out.println("</li>"); // fine della cartella più esterna -- list item
+		
+		
 }
 }
 
