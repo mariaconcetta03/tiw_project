@@ -191,7 +191,7 @@ public class ContenutiServlet extends HttpServlet {
 		String user = null;
 		String folderToken = request.getParameter("folderToken");
         Map<String, Integer> folderTokens = (Map<String, Integer>) session.getAttribute("folderTokens");
-        Map<String, Integer> fileTokens = new HashMap<>();
+		Map<String, Integer> fileTokens = new HashMap<>();
 
 		
 		// CODICE PER GESTIONE PAGINE PRECEDENTI -----------------------------
