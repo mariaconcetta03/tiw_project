@@ -100,8 +100,8 @@ public class CartellaDao {
 				Date data_creazione = resultSet.getDate("data_creazione");
 				Integer sopracartella = resultSet.getInt("sopracartella");
 				Folder folderToAdd = new Folder(id, proprietario, nome, data_creazione, sopracartella); 
-																										
-				folderToAdd.setSottocartelle(null); 
+				
+				folderToAdd.setSottocartelle(getSubfoldersFromDB (user, id)); 
 				foundFolders.add(folderToAdd);
 			}
 
