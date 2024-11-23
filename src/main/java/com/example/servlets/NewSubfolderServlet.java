@@ -1,4 +1,4 @@
-package com.example;
+package com.example.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -8,10 +8,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.sql.ResultSet;
@@ -22,144 +20,22 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import com.example.NewSubfolderServlet.Folder;
+import com.example.beans.*;
+import com.example.DAOs.*;
 
 @WebServlet("/NewSubfolderServlet")
 public class NewSubfolderServlet extends HttpServlet {
 
-	// Classe per rappresentare una cartella
-	class Folder {
-		Integer id;
-		String proprietario;
-		String nome;
-		Date data_creazione;
-		Integer sopracartella;
-		List<Folder> sottocartelle = new ArrayList<>();
-
-		public Folder(Integer id, String proprietario, String nome, Date data_creazione, Integer sopracartella) {
-			this.id = id;
-			this.proprietario = proprietario; // mail
-			this.nome = nome;
-			this.data_creazione = data_creazione;
-			this.sopracartella = sopracartella;
-			this.sottocartelle = null;
-		}
+	CartellaDao cartellaDao = null;
+	
+	// questa funzione viene eseguita solo una volta quando la servlet
+	// viene caricata in memoria
+	@Override
+public void init(){
+		cartellaDao = new CartellaDao();
 	}
-
-	// Metodo per recuperare tutte le cartelle dal database
-	private List<Folder> getFoldersFromDB(String user) {
-		List<Folder> allFolders = new ArrayList<>();
-
-		final String JDBC_URL = "jdbc:mysql://localhost:3306/tiw_project?serverTimezone=UTC";
-		final String JDBC_USER = "root";
-		final String JDBC_PASSWORD = "iononsonotu";
-
-		// inizializzazione delle variabili necessarie per la query
-		Connection connection = null;
-		PreparedStatement preparedStatement = null;
-		ResultSet resultSet = null;
-
-		// connessione al server SQL
-		try {
-			Class.forName("com.mysql.cj.jdbc.Driver");
-			connection = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD);
-		} catch (ClassNotFoundException | SQLException e) {
-			e.printStackTrace();
-		}
-
-		// prepariamo la query SQL
-		// prepared statements per evitare SQL-Injection
-		String sql = "SELECT * FROM cartella WHERE sopracartella is NULL and proprietario = ?";
-		try {
-			preparedStatement = connection.prepareStatement(sql);
-			preparedStatement.setString(1, user);
-			// preparedStatement.setNull(1, java.sql.Types.INTEGER); // prendiamo in
-			// considerazione le cartelle più esterne
-			// (le quali possono avere sottocartelle)
-
-			// riceviamo il risultato della query SQL
-			resultSet = preparedStatement.executeQuery();
-
-			while (resultSet.next()) {
-				Integer id = resultSet.getInt("id");
-				String proprietario = resultSet.getString("proprietario");
-				String nome = resultSet.getString("nome");
-				Date data_creazione = resultSet.getDate("data_creazione");
-				// se sopracartella è diverso da null, allora metto ID della sopracartella,
-				// altrimenti metto NULL
-				Integer sopracartella = resultSet.getObject("sopracartella") != null ? resultSet.getInt("sopracartella")
-						: null;
-				Folder folderToAdd = new Folder(id, proprietario, nome, data_creazione, sopracartella); // aggiungo la
-																										// cartella più
-																										// esterna
-				folderToAdd.sottocartelle = null; // default
-				folderToAdd.sottocartelle = getSubfolders(folderToAdd.id, user);
-				allFolders.add(folderToAdd);
-			}
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return allFolders;
-	}
-
-	// Metodo per recuperare tutte le sottocartelle di una specifica cartella
-	private List<Folder> getSubfolders(Integer idToSearch, String user) {
-		final String JDBC_URL = "jdbc:mysql://localhost:3306/tiw_project?serverTimezone=UTC";
-		final String JDBC_USER = "root";
-		final String JDBC_PASSWORD = "iononsonotu";
-		List<Folder> subFolders = new ArrayList<>();
-
-		// inizializzazione delle variabili necessarie per la query
-		Connection connection = null;
-		PreparedStatement preparedStatement = null;
-		ResultSet resultSet = null;
-
-		// connessione al server SQL
-		try {
-			Class.forName("com.mysql.cj.jdbc.Driver");
-			connection = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD);
-		} catch (ClassNotFoundException | SQLException e) {
-			e.printStackTrace();
-		}
-
-		// prepariamo la query SQL
-		// prepared statements per evitare SQL-Injection
-		String sql = "SELECT * FROM cartella WHERE sopracartella = ? and proprietario = ?";
-		try {
-			preparedStatement = connection.prepareStatement(sql);
-			preparedStatement.setInt(1, idToSearch); // prendiamo in considerazione le cartelle più esterne (le quali
-														// possono avere sottocartelle)
-														// per evitare sql injection (un utente malevolo saprebbe i
-														// valori da utilizare) quindi si settano man mano i valori
-			preparedStatement.setString(2, user);
-
-			// riceviamo il risultato della query SQL
-			resultSet = preparedStatement.executeQuery();
-
-			while (resultSet.next()) {
-				Integer id = resultSet.getInt("id");
-				String proprietario = resultSet.getString("proprietario");
-				String nome = resultSet.getString("nome");
-				Date data_creazione = resultSet.getDate("data_creazione");
-				// se sopracartella è diverso da null, allora metto ID della sopracartella,
-				// altrimenti metto NULL
-				Integer sopracartella = resultSet.getObject("sopracartella") != null ? resultSet.getInt("sopracartella")
-						: null;
-				Folder folderToAdd = new Folder(id, proprietario, nome, data_creazione, sopracartella); // aggiungo la
-																										// cartella più
-																										// esterna
-				folderToAdd.sottocartelle = null; // default
-				folderToAdd.sottocartelle = getSubfolders(folderToAdd.id, user);
-				subFolders.add(folderToAdd);
-			}
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return subFolders;
-	}
+	
+	
 
 	// Metodo per generare il codice HTML ricorsivamente dell'albero delle cartelle
 	// Inizia a mettere il primo folder
@@ -170,18 +46,18 @@ public class NewSubfolderServlet extends HttpServlet {
 
 		// aggiungiamo il token della nuova cartella
 		String token = UUID.randomUUID().toString(); // Un token casuale o identificatore offuscato
-		folderTokens.put(token, f.id);
+		folderTokens.put(token, f.getId());
 
 		// aggiorniamo i token della sessione
 		session.setAttribute("folderTokens", folderTokens);
 
 		out.println("<li class=\"folder\"> <a href=" + "\"NewSubfolderServlet?action=getChosenFolder&folder=" + token
-				+ "\" class=\"highlight\" type=\"submit\">" + f.nome + " </a>");
+				+ "\" class=\"highlight\" type=\"submit\">" + f.getNome() + " </a>");
 
-		if (f.sottocartelle != null) { // se ho sottocartelle, allora chiamo la funzione ricorsivamente per tutte le
+		if (f.getSottocartelle() != null) { // se ho sottocartelle, allora chiamo la funzione ricorsivamente per tutte le
 										// sottocartelle
 			out.println("<ul>"); // inizia la lista non ordinata
-			for (Folder sub : f.sottocartelle) {
+			for (Folder sub : f.getSottocartelle()) {
 				generateHtmlForFolder(out, sub, session); // chiamata ricorsiva
 			}
 			out.println("</ul>"); // fine della lista non ordinata --- per sottocartelle uso le "ul"
@@ -231,7 +107,7 @@ public class NewSubfolderServlet extends HttpServlet {
 
 		// Connessione al database e recupero delle cartelle (vengono messe in
 		// allFolders)
-		List<Folder> allFolders = getFoldersFromDB(user);
+		List<Folder> allFolders = cartellaDao.getAllUserFolder(user);
 
 		// Impostazione della risposta (pagina HTML)
 		response.setContentType("text/html");
@@ -328,6 +204,9 @@ public class NewSubfolderServlet extends HttpServlet {
 
 	}
 
+
+
+
 	// metodo che viene chiamato nel momento in cui l'utente ha finito di inserire i
 	// dati nel form HTML
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -343,7 +222,7 @@ public class NewSubfolderServlet extends HttpServlet {
 		}
 
 		if (idSopracartella != null) {
-			createFolderIntoDB(user, nome, Date.valueOf(LocalDate.now()), idSopracartella);
+			cartellaDao.createSubfolderIntoDB(user, nome, Date.valueOf(LocalDate.now()), idSopracartella);
 			session.setAttribute("idSopracartella", null); // metto a null il valore di idSopracartella, per far
 															// apparire il messaggio
 															// di errore in caso di future creazioni di cartella
@@ -357,43 +236,4 @@ public class NewSubfolderServlet extends HttpServlet {
 		}
 
 	}
-
-	// Metodo per creare cartelle
-	private void createFolderIntoDB(String proprietario, String nome, Date data_creazione, Integer sopracartella) {
-		final String JDBC_URL = "jdbc:mysql://localhost:3306/tiw_project?serverTimezone=UTC";
-		final String JDBC_USER = "root";
-		final String JDBC_PASSWORD = "iononsonotu";
-
-		// inizializzazione delle variabili necessarie per la query
-		Connection connection = null;
-		PreparedStatement preparedStatement = null;
-
-		// connessione al server SQL
-		try {
-			Class.forName("com.mysql.cj.jdbc.Driver");
-			connection = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD);
-		} catch (ClassNotFoundException | SQLException e) {
-			e.printStackTrace();
-		}
-
-		// prepariamo la query SQL per estrarre le CARTELLE
-		// prepared statements per evitare SQL-Injection
-
-		String sql = "INSERT INTO cartella (proprietario, nome, data_creazione, sopracartella) values (?,?,?,?)";
-		try {
-
-			preparedStatement = connection.prepareStatement(sql);
-			preparedStatement.setString(1, proprietario);
-			preparedStatement.setString(2, nome);
-			preparedStatement.setDate(3, data_creazione);
-			preparedStatement.setInt(4, sopracartella);
-
-			preparedStatement.executeUpdate();
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-
-	}
-
 }

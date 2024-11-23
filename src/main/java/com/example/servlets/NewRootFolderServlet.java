@@ -1,19 +1,9 @@
-package com.example;
+package com.example.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Connection;
 import java.sql.Date;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.LinkedList;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 import java.time.LocalDate;
 
 
@@ -24,7 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.example.ContenutiServlet.Folder;
+import com.example.DAOs.*;
 
 // 1. Cartella nella ROOT (sovracartella = NULL)
 // 2. Cartella all'interno di una cartella (sovracartella != NULL)
@@ -33,37 +23,19 @@ import com.example.ContenutiServlet.Folder;
 @WebServlet("/NewRootFolderServlet")
 public class NewRootFolderServlet extends HttpServlet {
 
-	// Classe per rappresentare una cartella
-	class Folder {
-		Integer id;
-		String proprietario;
-		String nome;
-		Date data_creazione;
-		Integer sopracartella;
-		List<Folder> sottocartelle = new ArrayList<>();
-
-		public Folder(Integer id, String proprietario, String nome, Date data_creazione, Integer sopracartella) {
-			this.id = id;
-			this.proprietario = proprietario; // mail
-			this.nome = nome;
-			this.data_creazione = data_creazione;
-			this.sopracartella = sopracartella;
-			this.sottocartelle = null;
-		}
-		
+	CartellaDao cartellaDao = null;
+	
+	// questa funzione viene eseguita solo una volta quando la servlet
+	// viene caricata in memoria
+	@Override
+	public void init(){
+		cartellaDao = new CartellaDao();
 	}
-	
-	
-	
-	
-	
 	
 	
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-
-		String user = null;
 
 		HttpSession session = request.getSession(); // false -> check se sessione esiste oppure no (nel caso in cui
 															// non esista restituisce null)
@@ -94,12 +66,6 @@ public class NewRootFolderServlet extends HttpServlet {
         session.setAttribute("pageHistory", history);
 		// -------------------------------------------------------------------
 		
-		
-		
-		// ricevo nome utente (email) dalla sessione
-		if (session != null) {
-			user = session.getAttribute("email").toString();
-		}
 
 		
 		// Impostazione della risposta (pagina HTML)
@@ -140,9 +106,6 @@ public class NewRootFolderServlet extends HttpServlet {
 
 
 
-
-
-
 	  // metodo che viene chiamato nel momento in cui l'utente ha finitpo di inserire i dati nel form HTML
 	  protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		HttpSession session = request.getSession();        // Recupero dei dati dal form
@@ -152,7 +115,7 @@ public class NewRootFolderServlet extends HttpServlet {
 		if (session != null) {
 			user = session.getAttribute("email").toString();
 			}
-        createFolderIntoDB(user, nome, Date.valueOf(LocalDate.now()));
+        cartellaDao.createRootFolderIntoDB(user, nome, Date.valueOf(LocalDate.now()));
         //si crea il valore della data automaticamente
         
         response.sendRedirect("HomeServlet");
@@ -160,48 +123,6 @@ public class NewRootFolderServlet extends HttpServlet {
      }
 	  
 	  
-	  
-	  	// Metodo per creare cartelle
-		private void createFolderIntoDB(String proprietario, String nome, Date data_creazione) {
-			final String JDBC_URL = "jdbc:mysql://localhost:3306/tiw_project?serverTimezone=UTC";
-			final String JDBC_USER = "root";
-			final String JDBC_PASSWORD = "iononsonotu";
-
-			// inizializzazione delle variabili necessarie per la query
-			Connection connection = null;
-			PreparedStatement preparedStatement = null;
-
-			// connessione al server SQL
-			try {
-				Class.forName("com.mysql.cj.jdbc.Driver");
-				connection = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD);
-			} catch (ClassNotFoundException | SQLException e) {
-				e.printStackTrace();
-			}
-
-			// prepariamo la query SQL per estrarre le CARTELLE
-			// prepared statements per evitare SQL-Injection
-	
-			
-			String sql = "INSERT INTO cartella (proprietario, nome, data_creazione, sopracartella) values (?,?,?,?)";
-			try {
-			
-				preparedStatement = connection.prepareStatement(sql);
-				preparedStatement.setString(1, proprietario);
-				preparedStatement.setString(2, nome);
-				preparedStatement.setDate(3, data_creazione);
-				preparedStatement.setNull(4, java.sql.Types.INTEGER);
-				
-				preparedStatement.executeUpdate();
-
-
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-			
-		}
-		
-		
-
+	 
 	
 }

@@ -1,15 +1,6 @@
-package com.example;
+package com.example.servlets;
 
 import java.io.IOException;
-import java.lang.*;
-import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -19,72 +10,24 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.example.DAOs.*;
+
 @WebServlet("/RegistrationServlet")
 public class RegistrationServlet extends HttpServlet {
 
-
-	private List<Integer> insertUser(String user, String pass, String em) {
-		final String JDBC_URL = "jdbc:mysql://localhost:3306/tiw_project?serverTimezone=UTC";
-		final String JDBC_USER = "root";
-		final String JDBC_PASSWORD = "iononsonotu";
-		
-		List<Integer> value = new ArrayList<>(); 
-		/** Questo array ci serve per ritornare errori: 
-		- il primo elemento indica se lo username è unique o no
-		- il secondo elemento indica se c'è un Connection Error oppure no
-		**/
-		
-		Connection connection = null;
-		PreparedStatement preparedStatement = null;
-
-		try {
-			Class.forName("com.mysql.cj.jdbc.Driver");
-			connection = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD);
-
-			String insertSQL = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
-			preparedStatement = connection.prepareStatement(insertSQL);
-			preparedStatement.setString(1, user);
-			preparedStatement.setString(2, pass);
-			preparedStatement.setString(3, em);
-
-			preparedStatement.executeUpdate(); // esegue lo statement SQL
-			value.add(1); // unique (inserito valore 1 se la registrazione è andata buon fine nel primo posto)
-			value.add(0); // connectionError (zero se non ci sono errori di connessione nel secondo campo)
-
-		} catch (ClassNotFoundException e) {
-			System.err.println("Driver JDBC non trovato: " + e.getMessage());
-			e.printStackTrace();
-			value.add(0); // unique
-			value.add(1); // connectionerror
-		} catch (SQLException e) {
-			if (e.getSQLState().equals("23000")) { // Codice di errore SQL per violazione di vincolo
-				System.out.println("Username o e-mail già esistente.");
-				value.add(0); // unique
-				value.add(0); // connectionError
-			} else {
-				e.printStackTrace();
-				value.add(0); // unique
-				value.add(1); // connectionerror
-			}
-		} finally {
-			try {
-				if (preparedStatement != null)
-					preparedStatement.close(); // chiudo un oggetto e rilascio le risorse occupate dall'oggetto stesso
-				if (connection != null)
-					connection.close(); // per chiusura connessione
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-		return value;
+	UserDao userDao = null;
+	
+	// questa funzione viene eseguita solo una volta quando la servlet
+	// viene caricata in memoria
+	@Override
+	public void init(){
+		userDao = new UserDao();
 	}
-
-
 
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-
+	
 		// getting the parameters written by the user
 		String username = request.getParameter("username");
 		String email = request.getParameter("email");
@@ -98,7 +41,7 @@ public class RegistrationServlet extends HttpServlet {
 
 		String errorMessage;
 		// username ed e-mail sono unici o no?
-		List<Integer> value = insertUser(username, password, email);
+		List<Integer> value = userDao.insertUser(username, password, email);
 		boolean unique, connectionError;
 
 		if (value.get(0) == 0) {
