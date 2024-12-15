@@ -19,42 +19,37 @@ import javax.servlet.http.HttpSession;
 import com.example.DAOs.*;
 import com.example.beans.*;
 
-
 @WebServlet("/NewFileServlet")
 public class NewFileServlet extends HttpServlet {
 
 	DocumentoDao documentoDao = null;
 	CartellaDao cartellaDao = null;
-	
+
 	// questa funzione viene eseguita solo una volta quando la servlet
 	// viene caricata in memoria
 	@Override
-	public void init(){
+	public void init() {
 		documentoDao = new DocumentoDao();
 		cartellaDao = new CartellaDao();
 	}
-	
-	
 
 	// Metodo per generare il codice HTML ricorsivamente dell'albero delle cartelle
-	// Inizia a mettere il primo folder
 	private void generateHtmlForFolder(PrintWriter out, Folder f, HttpSession session) {
 
 		// Prendiamo la map dei token dalla sessione
 		Map<String, Integer> folderTokens = (Map<String, Integer>) session.getAttribute("folderTokens");
 
 		// aggiungiamo il token della nuova cartella
-		String token = UUID.randomUUID().toString(); // Un token casuale o identificatore offuscato
+		String token = UUID.randomUUID().toString(); // Un token casuale
 		folderTokens.put(token, f.getId());
 
 		// aggiorniamo i token della sessione
 		session.setAttribute("folderTokens", folderTokens);
 
 		out.println("<li class=\"folder\"> <a href=" + "\"NewFileServlet?action=getChosenFolder&folder=" + token
-				+ "\" class=\"highlight\" type=\"submit\">" + f.getNome() + " </a>");
+				+ "\" class=\"highlight\" type=\"submit\">" + f.getNome() + " </a>"); // ACTION = folder selezionato
 
-		if (f.getSottocartelle() != null) { // se ho sottocartelle, allora chiamo la funzione ricorsivamente per tutte le
-										// sottocartelle
+		if (f.getSottocartelle() != null) { // se ho sottocartelle, allora chiamo la funzione ricorsivamente per tutte le sottocartelle
 			out.println("<ul>"); // inizia la lista non ordinata
 			for (Folder sub : f.getSottocartelle()) {
 				generateHtmlForFolder(out, sub, session); // chiamata ricorsiva
@@ -64,6 +59,8 @@ public class NewFileServlet extends HttpServlet {
 		out.println("</li>"); // fine della cartella più esterna -- list item
 	}
 
+	
+	// Questo metodo viene chiamato per far apparire la pagina di creazione di un nuovo file
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -71,9 +68,8 @@ public class NewFileServlet extends HttpServlet {
 		String user = null;
 		String folderName = null;
 
-		HttpSession session = request.getSession(); // false -> check se sessione esiste oppure no (nel caso in cui
-													// non esista restituisce null)
-
+		HttpSession session = request.getSession(); 
+		
 		// CODICE PER GESTIONE PAGINE PRECEDENTI -----------------------------
 		// Ottieni la parte principale dell'URL
 		String currentPage = request.getRequestURL().toString();
@@ -144,13 +140,14 @@ public class NewFileServlet extends HttpServlet {
 
 		// Messaggio di selezione della cartella
 		String action = request.getParameter("action");
+		
+		// se l'azione compiuta è quella di aver selezionato un folder
 		if ("getChosenFolder".equals(action)) { // Gestisci la selezione della cartella
 			String folder = request.getParameter("folder"); // folder = il token della cartella di destinazione
 			Map<String, Integer> folderTokens = (Map<String, Integer>) session.getAttribute("folderTokens");
 			Integer idSopracartella = folderTokens.get(folder);
 
-			// salviamo ID sopracartella nella sessione, poichè ci servirà per la creazione
-			// del file
+			// salviamo ID sopracartella nella sessione, poichè ci servirà per la creazione del file
 			session.setAttribute("idSopracartella", idSopracartella);
 
 			folderName = cartellaDao.getNomeCartellaById(idSopracartella);
@@ -176,22 +173,25 @@ public class NewFileServlet extends HttpServlet {
 				+ "			        const errorMessage = params.get('error');" + "			        if (errorMessage) {"
 				+ "			            document.getElementById('errorMessage').textContent = errorMessage;"
 				+ "			        }\r\n" + "			    </script>");
+		
 		// tasto CREA
 		out.println("<INPUT type = 'submit' VALUE = CREA>\r\n" + "\r\n" + "</FORM>");
 		out.println("</body></html>");
 
 	}
+	
+	
 
 	// metodo che viene chiamato nel momento in cui l'utente ha finito di inserire i
-	// dati nel form HTML
+	// dati nel form HTML ---> creo il file
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		HttpSession session = request.getSession(); // Recupero dei dati dal form
 		String user = null;
 		String nome = request.getParameter("nome"); // nome del file da creare
-		String tipo = request.getParameter("tipo");
-		String sommario = request.getParameter("sommario");
-		Integer idSopracartella = (Integer) session.getAttribute("idSopracartella");
+		String tipo = request.getParameter("tipo"); // tipo del file da creare
+		String sommario = request.getParameter("sommario");// sommario del file da creare
+		Integer idSopracartella = (Integer) session.getAttribute("idSopracartella"); //id sopracartella
 
 		// attributi
 		if (session != null) {
@@ -209,12 +209,6 @@ public class NewFileServlet extends HttpServlet {
 			response.sendRedirect("NewFileServlet?error=" + java.net.URLEncoder.encode(errorMessage, "UTF-8"));
 			return;
 		}
-
 	}
-
-	
-	
-	
-	
 
 }

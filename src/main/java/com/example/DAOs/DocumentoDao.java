@@ -8,9 +8,9 @@ import com.example.beans.File;
 
 public class DocumentoDao {
 
-	Connection connection = null; // this is the actual connection to the DB
+	Connection connection = null; // Questa è la connessione col DB
 
-	// this method connects to the DB
+	// Questo metodo crea la connessione col DB
 	private void getConnection() {
 
 		final String JDBC_URL = "jdbc:mysql://localhost:3306/tiw_project?serverTimezone=UTC";
@@ -21,11 +21,11 @@ public class DocumentoDao {
 			Class.forName("com.mysql.cj.jdbc.Driver");
 			connection = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD);
 		} catch (ClassNotFoundException | SQLException e) {
-			e.printStackTrace();
+			System.out.println("Impossibile stabilire la connessione col DB");
 		}
 	}
 
-	// this method closes the connection to the DB
+	// Questo metodo chiude la connessone col DB
 	private void closeConnection() {
 		try {
 			connection.close();
@@ -34,8 +34,10 @@ public class DocumentoDao {
 		}
 	}
 
+	// Questo metodo restituisce un documento, dato il suo ID
 	public File findDocumentoByID(Integer fileId) {
 		getConnection();
+
 		String sql = "SELECT * FROM documento WHERE id = ?";
 		File f = null;
 		ResultSet resultSet = null;
@@ -66,7 +68,7 @@ public class DocumentoDao {
 			}
 
 		} catch (SQLException e) {
-			e.printStackTrace();
+			System.out.println("Impossibile eseguire la query SQL");
 		} finally {
 			// Chiudere risorse
 			try {
@@ -76,16 +78,14 @@ public class DocumentoDao {
 					preparedStatement.close();
 				closeConnection();
 			} catch (SQLException e) {
-				e.printStackTrace();
+				System.out.println("Impossibile chiudere le risorse");
 			}
 		}
 		return f;
 	}
-	
-	
-	
-	
-	// Metodo per recuperare tutti i documenti in una determinata cartella del database
+
+	// Metodo per recuperare tutti i documenti in una determinata cartella del
+	// database
 	public List<File> getDocsFromFolder(String user, Integer folder) {
 		getConnection();
 		List<File> foundDocs = new ArrayList<>();
@@ -93,7 +93,7 @@ public class DocumentoDao {
 		// inizializzazione delle variabili necessarie per la query
 		PreparedStatement preparedStatement = null;
 		ResultSet resultSet = null;
-	
+
 		// prepared statements per evitare SQL-Injection
 		String sql = "SELECT * FROM documento WHERE cartella = ?";
 		try {
@@ -111,12 +111,12 @@ public class DocumentoDao {
 				String sommario = resultSet.getString("sommario");
 				String tipo = resultSet.getString("tipo");
 				Integer cartella = resultSet.getInt("cartella");
-				File docsToAdd = new File(id, proprietario, nome, data_creazione, sommario, tipo, cartella); 																									
+				File docsToAdd = new File(id, proprietario, nome, data_creazione, sommario, tipo, cartella);
 				foundDocs.add(docsToAdd);
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
-		}finally {
+			System.out.println("Impossibile eseguire la query SQL");
+		} finally {
 			// Chiudere risorse
 			try {
 				if (resultSet != null)
@@ -125,53 +125,48 @@ public class DocumentoDao {
 					preparedStatement.close();
 				closeConnection();
 			} catch (SQLException e) {
-				e.printStackTrace();
+				System.out.println("Impossibile chiudere le risorse del sistema");
 			}
 		}
 		return foundDocs;
 	}
-	
-	
-	
-	
-	// Metodo per creare cartelle
-		public void createFile(String proprietario, String nome, Date data_creazione, String sommario, String tipo,
-				Integer sopracartella) {
-			getConnection();
-			PreparedStatement preparedStatement = null;
-			ResultSet resultSet = null;
-			
-			// prepared statements per evitare SQL-Injection
-			String sql = "INSERT INTO documento (proprietario, nome, data_creazione, sommario, tipo, cartella) values (?,?,?,?,?,?)";
-			try {
-				preparedStatement = connection.prepareStatement(sql);
-				preparedStatement.setString(1, proprietario);
-				preparedStatement.setString(2, nome);
-				preparedStatement.setDate(3, data_creazione);
-				preparedStatement.setString(4, sommario);
-				preparedStatement.setString(5, tipo);
-				preparedStatement.setInt(6, sopracartella);
 
-				preparedStatement.executeUpdate();
+	// Metodo per creare cartelle
+	public void createFile(String proprietario, String nome, Date data_creazione, String sommario, String tipo,
+			Integer sopracartella) {
+		getConnection();
+		PreparedStatement preparedStatement = null;
+		ResultSet resultSet = null;
+
+		// prepared statements per evitare SQL-Injection
+		String sql = "INSERT INTO documento (proprietario, nome, data_creazione, sommario, tipo, cartella) values (?,?,?,?,?,?)";
+		try {
+			preparedStatement = connection.prepareStatement(sql);
+			preparedStatement.setString(1, proprietario);
+			preparedStatement.setString(2, nome);
+			preparedStatement.setDate(3, data_creazione);
+			preparedStatement.setString(4, sommario);
+			preparedStatement.setString(5, tipo);
+			preparedStatement.setInt(6, sopracartella);
+
+			preparedStatement.executeUpdate();
+		} catch (SQLException e) {
+			System.out.println("Impossibile eseguire la query SQL");
+		} finally {
+			// Chiudere risorse
+			try {
+				if (resultSet != null)
+					resultSet.close();
+				if (preparedStatement != null)
+					preparedStatement.close();
+				closeConnection();
 			} catch (SQLException e) {
-				e.printStackTrace();
-			} finally {
-				// Chiudere risorse
-				try {
-					if (resultSet != null)
-						resultSet.close();
-					if (preparedStatement != null)
-						preparedStatement.close();
-					closeConnection();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
+				System.out.println("Impossibile chiudere le risorse del sistema");
 			}
 		}
-	
-	
-	
-	
+	}
+
+	// Questo metodo sposta un file da una cartella ad un'altra
 	public void updateFilePosition(Integer newFolderID, Integer fileID) {
 		getConnection();
 		PreparedStatement preparedStatement = null;
@@ -187,17 +182,17 @@ public class DocumentoDao {
 			preparedStatement.executeUpdate();
 
 		} catch (SQLException e) {
-			e.printStackTrace();
-		}finally {
+			System.out.println("Impossibile eseguire la query SQL");
+		} finally {
 			// Chiudere risorse
 			try {
 				if (preparedStatement != null)
 					preparedStatement.close();
 				closeConnection();
 			} catch (SQLException e) {
-				e.printStackTrace();
+				System.out.println("Impossibile chiudere le risorse del sistema");
 			}
 		}
-	}	
-	
+	}
+
 }

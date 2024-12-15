@@ -28,21 +28,18 @@ public class RegistrationServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 	
-		// getting the parameters written by the user
+		// prendiamo i parametri inseriti dall'utente
 		String username = request.getParameter("username");
 		String email = request.getParameter("email");
 		String password = request.getParameter("password");
 		String confirmPassword = request.getParameter("password_conf");
 
 		response.setContentType("text/html");
-		//PrintWriter out = response.getWriter();
 		// così si scrive direttamente nella risposta HTTP che verrà inviata al client
 
-
 		String errorMessage;
-		// username ed e-mail sono unici o no?
 		List<Integer> value = userDao.insertUser(username, password, email);
-		boolean unique, connectionError;
+		boolean unique, connectionError; //se username/mail unico, value.get(0)==1 altimenti no lo è, lo stesso per la connessione (se c'è stato un errore o meno)
 
 		if (value.get(0) == 0) {
 			unique = false;
@@ -63,19 +60,18 @@ public class RegistrationServlet extends HttpServlet {
 			return;
 		}
 
-		if (username.length() > 50) {
+		if (username.length() > 50) { // username troppo lungo
 			errorMessage = "L'username non può superare la lunghezza di 50 caratteri. Riprova.";
 			response.sendRedirect("registration.html?error=" + java.net.URLEncoder.encode(errorMessage, "UTF-8"));
 		} else {
-			if (!unique) {
+			if (!unique) { // username o mail già in uso
 				errorMessage = "Lo username o l'e-mail sono già in uso. Riprova";
 				response.sendRedirect("registration.html?error=" + java.net.URLEncoder.encode(errorMessage, "UTF-8"));
 			} else {
-				// if confirmation password is different from the password
+				// se le 2 password NON coincidono
 				if (!password.equals(confirmPassword)) {
 					errorMessage = "Le due password non coincidono. Riprova";
-					// Reindirizza di nuovo alla pagina HTML con il messaggio di errore nella query
-					// string
+					// Reindirizza di nuovo alla pagina HTML con il messaggio di errore nella querystring
 					response.sendRedirect(
 							"registration.html?error=" + java.net.URLEncoder.encode(errorMessage, "UTF-8"));
 				} else {
@@ -84,12 +80,10 @@ public class RegistrationServlet extends HttpServlet {
 						// Reindirizza di nuovo alla pagina HTML con il messaggio di errore nella query
 						// string
 						errorMessage = "La password non soddisfa i requisiti richiesti. Riprova.";
-						response.sendRedirect(
-								"registration.html?error=" + java.net.URLEncoder.encode(errorMessage, "UTF-8"));
+						response.sendRedirect("registration.html?error=" + java.net.URLEncoder.encode(errorMessage, "UTF-8"));
 					} else {
 						HttpSession session = request.getSession();
-						session.setAttribute("email", email); // Salviamo l'email nella sessione, perchè è quella del
-																// PROPRIETARIO delle cartelle
+						session.setAttribute("email", email); // Salviamo l'email nella sessione, perchè è quella del PROPRIETARIO delle cartelle
 						// Se non ci sono errori, procediamo in home page
 						response.sendRedirect("http://localhost:8080/tiw_project/HomeServlet");
 					}

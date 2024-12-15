@@ -33,8 +33,8 @@ public class AccediServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
-		HttpSession session = request.getSession(); // false -> check se sessione esiste oppure no (nel caso in cui
-													// non esista restituisce null)
+		HttpSession session = request.getSession(); 
+													
 		Map<String, Integer> fileTokens = null;
 		File f = null;
 		String nomeCartella = null;
@@ -71,7 +71,7 @@ public class AccediServlet extends HttpServlet {
 		// prendo dall'URL il token del file selezionato
 		String fileToken = request.getParameter("fileToken");
 
-		Integer fileId = 0;
+		Integer fileId = null;
 		if (fileTokens != null && fileTokens.containsKey(fileToken)) { // se il token corrisponde ad uno effettivamente
 																		// esistente
 			fileId = fileTokens.get(fileToken); // ID della cartella

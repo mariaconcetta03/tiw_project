@@ -37,9 +37,7 @@ public class NewRootFolderServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
-		HttpSession session = request.getSession(); // false -> check se sessione esiste oppure no (nel caso in cui
-															// non esista restituisce null)
-		
+		HttpSession session = request.getSession(); 
 		
 		// CODICE PER GESTIONE PAGINE PRECEDENTI -----------------------------
 		 // Ottieni la parte principale dell'URL
@@ -66,7 +64,6 @@ public class NewRootFolderServlet extends HttpServlet {
         session.setAttribute("pageHistory", history);
 		// -------------------------------------------------------------------
 		
-
 		
 		// Impostazione della risposta (pagina HTML)
 		response.setContentType("text/html");
@@ -103,18 +100,18 @@ public class NewRootFolderServlet extends HttpServlet {
 		out.println("</body></html>");
 	}
 
+	
 
-
-
-	  // metodo che viene chiamato nel momento in cui l'utente ha finitpo di inserire i dati nel form HTML
+	  // metodo che viene chiamato nel momento in cui l'utente ha finito di inserire i dati nel form HTML
 	  protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		HttpSession session = request.getSession();        // Recupero dei dati dal form
+		HttpSession session = request.getSession();        
         String user = null;
         String nome = request.getParameter("nome");
+        
         // ricevo nome utente (email) dalla sessione e metto i foldertokens come attributi
 		if (session != null) {
 			user = session.getAttribute("email").toString();
-			}
+		}
         cartellaDao.createRootFolderIntoDB(user, nome, Date.valueOf(LocalDate.now()));
         //si crea il valore della data automaticamente
         
@@ -123,6 +120,4 @@ public class NewRootFolderServlet extends HttpServlet {
      }
 	  
 	  
-	 
-	
 }

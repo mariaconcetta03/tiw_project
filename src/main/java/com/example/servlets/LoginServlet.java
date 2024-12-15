@@ -14,41 +14,41 @@ import com.example.DAOs.UserDao;
 
 @WebServlet("/LoginServlet")
 public class LoginServlet extends HttpServlet {
-	
+
 	UserDao userDao = null;
-	
+
 	// questa funzione viene eseguita solo una volta quando la servlet
 	// viene caricata in memoria
 	@Override
-	public void init(){
+	public void init() {
 		userDao = new UserDao();
 	}
-	
+
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-				
-		HttpSession session = request.getSession(); // false = se non esiste una sessione, allora non la creo
-	    if (session != null) {
-	        session.invalidate(); // invalido una possibile sessione precedente
-	    }
 
-		// getting the parameters written by the user
+		HttpSession session = request.getSession();
+		if (session != null) {
+			session.invalidate(); // invalido una possibile sessione precedente (vecchio login)
+		}
+
+		// Prelevando parametri dell'utente
 		String email = request.getParameter("email");
 		String password = request.getParameter("password");
 
 		response.setContentType("text/html");
-	
-		String errorMessage;
-		
-			List<Integer> value = userDao.checkCredentials(email, password);
 
-		if(value.get(0).equals(1)) { // connectionError = 1
+		String errorMessage;
+
+		List<Integer> value = userDao.checkCredentials(email, password);
+
+		if (value.get(0).equals(1)) { // connectionError = 1
 			errorMessage = "C'è stato un errore durante la comunicazione con il server SQL";
 			response.sendRedirect("login.html?error=" + java.net.URLEncoder.encode(errorMessage, "UTF-8"));
 			return;
 		}
-		
+
 		if (value.get(1).equals(0)) { // wrongParam = 0
 			session = request.getSession();
 			session.setAttribute("email", email); // Salviamo l'email nella sessione, perchè è quella del PROPRIETARIO delle cartelle

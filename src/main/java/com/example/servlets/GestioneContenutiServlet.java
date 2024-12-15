@@ -2,18 +2,7 @@ package com.example.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -31,11 +20,7 @@ public class GestioneContenutiServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
-		String user = null;
-
-		HttpSession session = request.getSession(); // false -> check se sessione esiste oppure no (nel caso in cui
-															// non esista restituisce null)
-		
+		HttpSession session = request.getSession(); 		
 		
 		// CODICE PER GESTIONE PAGINE PRECEDENTI -----------------------------
 		 // Ottieni la parte principale dell'URL
@@ -61,13 +46,6 @@ public class GestioneContenutiServlet extends HttpServlet {
         // Salva la cronologia nella sessione
         session.setAttribute("pageHistory", history);
 		// -------------------------------------------------------------------
-		
-		
-		
-		// ricevo nome utente (email) dalla sessione
-		if (session != null) {
-			user = session.getAttribute("email").toString();
-		}
 
 		
 		// Impostazione della risposta (pagina HTML)

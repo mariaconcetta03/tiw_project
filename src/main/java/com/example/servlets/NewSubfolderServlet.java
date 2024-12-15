@@ -27,25 +27,22 @@ import com.example.DAOs.*;
 public class NewSubfolderServlet extends HttpServlet {
 
 	CartellaDao cartellaDao = null;
-	
+
 	// questa funzione viene eseguita solo una volta quando la servlet
 	// viene caricata in memoria
 	@Override
-public void init(){
+	public void init() {
 		cartellaDao = new CartellaDao();
 	}
-	
-	
 
-	// Metodo per generare il codice HTML ricorsivamente dell'albero delle cartelle
-	// Inizia a mettere il primo folder
+	// Metodo per generare il codice HTML ricorsivamente dell'albero delle cartelle con la ACTION nella query string
 	private void generateHtmlForFolder(PrintWriter out, Folder f, HttpSession session) {
 
 		// Prendiamo la map dei token dalla sessione
 		Map<String, Integer> folderTokens = (Map<String, Integer>) session.getAttribute("folderTokens");
 
 		// aggiungiamo il token della nuova cartella
-		String token = UUID.randomUUID().toString(); // Un token casuale o identificatore offuscato
+		String token = UUID.randomUUID().toString(); // Un token casuale
 		folderTokens.put(token, f.getId());
 
 		// aggiorniamo i token della sessione
@@ -54,8 +51,7 @@ public void init(){
 		out.println("<li class=\"folder\"> <a href=" + "\"NewSubfolderServlet?action=getChosenFolder&folder=" + token
 				+ "\" class=\"highlight\" type=\"submit\">" + f.getNome() + " </a>");
 
-		if (f.getSottocartelle() != null) { // se ho sottocartelle, allora chiamo la funzione ricorsivamente per tutte le
-										// sottocartelle
+		if (f.getSottocartelle() != null) { // se ho sottocartelle, allora chiamo la funzione ricorsivamente per tutte le sottocartelle
 			out.println("<ul>"); // inizia la lista non ordinata
 			for (Folder sub : f.getSottocartelle()) {
 				generateHtmlForFolder(out, sub, session); // chiamata ricorsiva
@@ -65,6 +61,7 @@ public void init(){
 		out.println("</li>"); // fine della cartella più esterna -- list item
 	}
 
+	
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -72,9 +69,8 @@ public void init(){
 		String user = null;
 		String folderName = null;
 
-		HttpSession session = request.getSession(); // false -> check se sessione esiste oppure no (nel caso in cui
-													// non esista restituisce null)
-
+		HttpSession session = request.getSession(); 
+		
 		// CODICE PER GESTIONE PAGINE PRECEDENTI -----------------------------
 		// Ottieni la parte principale dell'URL
 		String currentPage = request.getRequestURL().toString();
@@ -153,36 +149,8 @@ public void init(){
 			// salviamo ID sopracartella nella sessione, poichè ci servirà per la creazione
 			// della cartella "figlia"
 			session.setAttribute("idSopracartella", idSopracartella);
-
-			final String JDBC_URL = "jdbc:mysql://localhost:3306/tiw_project?serverTimezone=UTC";
-			final String JDBC_USER = "root";
-			final String JDBC_PASSWORD = "iononsonotu";
-			// Interrogo il database per ottenere il nome della cartella in questione
-			Connection connection = null;
-			PreparedStatement preparedStatement = null;
-			ResultSet resultSet = null;
-
-			try {
-				Class.forName("com.mysql.cj.jdbc.Driver");
-				connection = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD);
-			} catch (ClassNotFoundException | SQLException e) {
-				e.printStackTrace();
-			}
-
-			String sql = "SELECT nome FROM cartella WHERE id = ?";
-			try {
-				preparedStatement = connection.prepareStatement(sql);
-				preparedStatement.setInt(1, idSopracartella);
-
-				// riceviamo il risultato della query SQL
-				resultSet = preparedStatement.executeQuery();
-				if (resultSet.next()) {
-					folderName = resultSet.getString("nome");
-				}
-
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			
+			folderName = cartellaDao.getNomeCartellaById(idSopracartella);
 
 			out.println("Hai selezionato la cartella: " + folderName);
 		}
@@ -198,20 +166,19 @@ public void init(){
 				+ "			        const errorMessage = params.get('error');" + "			        if (errorMessage) {"
 				+ "			            document.getElementById('errorMessage').textContent = errorMessage;"
 				+ "			        }\r\n" + "			    </script>");
+		
 		// tasto CREA
 		out.println("<INPUT type = 'submit' VALUE = CREA>\r\n" + "\r\n" + "</FORM>");
 		out.println("</body></html>");
 
 	}
 
-
-
-
+	
 	// metodo che viene chiamato nel momento in cui l'utente ha finito di inserire i
-	// dati nel form HTML
+	// dati nel form HTML ---> creo la cartella
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		HttpSession session = request.getSession(); // Recupero dei dati dal form
+		HttpSession session = request.getSession(); 
 		String user = null;
 		String nome = request.getParameter("nome"); // nome cartella creata
 		Integer idSopracartella = (Integer) session.getAttribute("idSopracartella");
@@ -230,9 +197,7 @@ public void init(){
 		} else {
 			String errorMessage = "Nessuna cartella di destinazione selezionata!";
 			response.sendRedirect("NewSubfolderServlet?error=" + java.net.URLEncoder.encode(errorMessage, "UTF-8"));
-
 			return;
-
 		}
 
 	}

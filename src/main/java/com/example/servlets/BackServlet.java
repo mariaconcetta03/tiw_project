@@ -21,10 +21,6 @@ public class BackServlet extends HttpServlet {
 		HttpSession session = request.getSession();
 		LinkedList<String> history = (LinkedList<String>) session.getAttribute("pageHistory");
 
-		if (history == null) {
-			System.out.println("LISTA NULLA !!!");
-		}
-
 		if (history == null || history.size() <= 1) {
 			// Se non ci sono pagine precedenti, reindirizza alla pagina home
 			response.sendRedirect("http://localhost:8080/tiw_project/HomeServlet");

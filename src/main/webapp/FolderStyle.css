@@ -51,31 +51,6 @@
     text-decoration: underlined;
 }
 
-/*
-/* Serve per nascondere la checkbox: essa è invisibile all'utente, ma presente, in modo che
-l'utente stesso possa espandere o comprimere la checkbox 
-display: none ==> non viene mostrato nulla */
-.tree input[type="checkbox"] {
-    display: none;
-}
-
-
-/* Serve per nascondere ogni UL (unordered list) che segue una label. Quindi, per impostazione 
-predefinita, le liste nidificate nel menu ad albero sono nascoste 
-display: none ==> non viene mostrato nulla */
-.tree input[type="checkbox"] + label + ul {
-    display: none;
-}
-
-
-/* Serve per mostrare il contenuto (ovvero la lista non ordinata UL), nel momento in cui una
-checkbox viene selezionata (ovvero viene premuta) 
-display: block ==> viene visualizzato il blocco ed è possibile specificare 
-l'altezza (height), i margini (margin), e i padding (padding) */
-.tree input[type="checkbox"]:checked + label + ul {
-    display: block;
-}
-
 
 
    
