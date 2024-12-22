@@ -38,7 +38,8 @@ public class AccediServlet extends HttpServlet {
 		Map<String, Integer> fileTokens = null;
 		File f = null;
 		String nomeCartella = null;
-
+		String user = null;
+		
 		// CODICE PER GESTIONE PAGINE PRECEDENTI -----------------------------
 		// Ottieni la parte principale dell'URL
 		String currentPage = request.getRequestURL().toString();
@@ -66,6 +67,7 @@ public class AccediServlet extends HttpServlet {
 
 		if (session != null) {
 			fileTokens = (Map<String, Integer>) session.getAttribute("fileTokens");
+			user = session.getAttribute("email").toString();
 		}
 
 		// prendo dall'URL il token del file selezionato
@@ -77,9 +79,9 @@ public class AccediServlet extends HttpServlet {
 			fileId = fileTokens.get(fileToken); // ID della cartella
 		}
 
-		f = documentoDao.findDocumentoByID(fileId);
+		f = documentoDao.findDocumentoByID(user, fileId);
 
-		nomeCartella = cartellaDao.getNomeCartellaById(f.getCartella());
+		nomeCartella = cartellaDao.getNomeCartellaById(user, f.getCartella());
 
 		// Impostazione della risposta (pagina HTML)
 		response.setContentType("text/html");

@@ -150,7 +150,7 @@ public class NewSubfolderServlet extends HttpServlet {
 			// della cartella "figlia"
 			session.setAttribute("idSopracartella", idSopracartella);
 			
-			folderName = cartellaDao.getNomeCartellaById(idSopracartella);
+			folderName = cartellaDao.getNomeCartellaById(user, idSopracartella);
 
 			out.println("Hai selezionato la cartella: " + folderName);
 		}

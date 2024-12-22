@@ -85,7 +85,7 @@ public class ContenutiServlet extends HttpServlet {
 			files = documentoDao.getDocsFromFolder(user, folderId);
 		}
 
-		folderName = cartellaDao.getNomeCartellaById(folderId);
+		folderName = cartellaDao.getNomeCartellaById(user, folderId);
 
 		// Impostazione della risposta (pagina HTML)
 		response.setContentType("text/html");

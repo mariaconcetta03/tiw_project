@@ -150,7 +150,7 @@ public class NewFileServlet extends HttpServlet {
 			// salviamo ID sopracartella nella sessione, poichè ci servirà per la creazione del file
 			session.setAttribute("idSopracartella", idSopracartella);
 
-			folderName = cartellaDao.getNomeCartellaById(idSopracartella);
+			folderName = cartellaDao.getNomeCartellaById(user, idSopracartella);
 
 			out.println("Hai selezionato la cartella: " + folderName);
 		}
