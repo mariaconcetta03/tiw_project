@@ -36,17 +36,18 @@ public class CartellaDao {
 	
 
 	// Questo metodo ritorna il nome di una cartella, dato un suo ID
-	public String getNomeCartellaById(Integer idCartella) {
+	public String getNomeCartellaById(String user, Integer idCartella) {
 		String nomeCartella = null;
 		PreparedStatement preparedStatement = null;
 		ResultSet resultSet = null;
 
 		getConnection();
 
-		String sql1 = "SELECT nome FROM cartella WHERE id = ?";
+		String sql1 = "SELECT nome FROM cartella WHERE id = ? and proprietario = ?";
 		try {
 			preparedStatement = connection.prepareStatement(sql1);
 			preparedStatement.setInt(1, idCartella);
+			preparedStatement.setString(2, user);
 
 			// riceviamo il risultato della query SQL
 			resultSet = preparedStatement.executeQuery();
@@ -85,11 +86,13 @@ public class CartellaDao {
 		ResultSet resultSet = null;
 
 		// prepared statements per evitare SQL-Injection
-		String sql = "SELECT * FROM cartella WHERE sopracartella = ?";
+		String sql = "SELECT * FROM cartella WHERE sopracartella = ? and proprietario = ?";
 
 		try {
 			preparedStatement = connection.prepareStatement(sql);
 			preparedStatement.setInt(1, cartella);
+			preparedStatement.setString(2, user);
+			
 
 			// riceviamo il risultato della query SQL
 			resultSet = preparedStatement.executeQuery();

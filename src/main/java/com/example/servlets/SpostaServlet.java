@@ -42,17 +42,24 @@ public class SpostaServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		HttpSession session = request.getSession();
-
+		String user = null;
 		String folderToken = request.getParameter("folderToken"); // nome del folder in cui ci spostiamo
 		String fileToken = request.getParameter("fileToken"); // nome del file spostato
 
-		Map<String, Integer> folderTokens = (Map<String, Integer>) session.getAttribute("folderTokens");
-		Map<String, Integer> fileTokens = (Map<String, Integer>) session.getAttribute("fileTokens");
+		Map<String, Integer> folderTokens = null;
+		Map<String, Integer> fileTokens = null;
 
+		if (session != null) {
+			user = session.getAttribute("email").toString();
+			folderTokens = (Map<String,Integer>)session.getAttribute("folderTokens");
+			fileTokens = (Map<String,Integer>)session.getAttribute("fileTokens");
+		}
+		
 		Integer fileID = fileTokens.get(fileToken);
 		Integer newFolderID = folderTokens.get(folderToken);
 		
-		documentoDao.updateFilePosition(newFolderID, fileID);
+		
+		documentoDao.updateFilePosition(user, newFolderID, fileID);
 		response.sendRedirect("ContenutiServlet?folderToken=" + folderToken);
 	}
 	

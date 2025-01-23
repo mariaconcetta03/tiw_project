@@ -94,11 +94,11 @@ public class HomeServlet extends HttpServlet {
 				String fileToMoveToken = request.getParameter("fileToken");
 				Integer idFileToMove = fileTokens.get(fileToMoveToken); // ottengo in questo modo id della cartella associata 
 			
-				File f = documentoDao.findDocumentoByID (idFileToMove); // file da spostare
+				File f = documentoDao.findDocumentoByID (user, idFileToMove); // file da spostare
 				nomeFile = f.getNome(); // nome file da spostare
 				IDCartella = f.getCartella(); // vecchia cartella del file
 				
-				nomeCartella = cartellaDao.getNomeCartellaById(IDCartella); // nome vecchia cartella del file
+				nomeCartella = cartellaDao.getNomeCartellaById(user, IDCartella); // nome vecchia cartella del file
 				
 				// Impostazione della risposta (pagina HTML)
 				response.setContentType("text/html");

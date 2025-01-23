@@ -35,10 +35,10 @@ public class DocumentoDao {
 	}
 
 	// Questo metodo restituisce un documento, dato il suo ID
-	public File findDocumentoByID(Integer fileId) {
+	public File findDocumentoByID(String user, Integer fileId) {
 		getConnection();
 
-		String sql = "SELECT * FROM documento WHERE id = ?";
+		String sql = "SELECT * FROM documento WHERE id = ? and proprietario = ?";
 		File f = null;
 		ResultSet resultSet = null;
 		PreparedStatement preparedStatement = null;
@@ -46,6 +46,7 @@ public class DocumentoDao {
 		try {
 			preparedStatement = connection.prepareStatement(sql);
 			preparedStatement.setInt(1, fileId);
+			preparedStatement.setString(2, user);
 
 			// riceviamo il risultato della query SQL
 			resultSet = preparedStatement.executeQuery();
@@ -95,10 +96,11 @@ public class DocumentoDao {
 		ResultSet resultSet = null;
 
 		// prepared statements per evitare SQL-Injection
-		String sql = "SELECT * FROM documento WHERE cartella = ?";
+		String sql = "SELECT * FROM documento WHERE cartella = ? and proprietario = ?";
 		try {
 			preparedStatement = connection.prepareStatement(sql);
 			preparedStatement.setInt(1, folder);
+			preparedStatement.setString(2, user);
 
 			// riceviamo il risultato della query SQL
 			resultSet = preparedStatement.executeQuery();
@@ -167,16 +169,18 @@ public class DocumentoDao {
 	}
 
 	// Questo metodo sposta un file da una cartella ad un'altra
-	public void updateFilePosition(Integer newFolderID, Integer fileID) {
+	public void updateFilePosition(String user, Integer newFolderID, Integer fileID) {
 		getConnection();
 		PreparedStatement preparedStatement = null;
 
 		// prepared statements per evitare SQL-Injection
-		String sql = "UPDATE documento SET cartella = ? WHERE id = ? ";
+		String sql = "UPDATE documento SET cartella = ? WHERE id = ? and proprietario = ? ";
 		try {
 			preparedStatement = connection.prepareStatement(sql);
 			preparedStatement.setInt(1, newFolderID);
 			preparedStatement.setInt(2, fileID);
+			preparedStatement.setString(3, user);
+			
 
 			// riceviamo il risultato della query SQL
 			preparedStatement.executeUpdate();
