@@ -1,9 +1,4 @@
 @charset "UTF-8";
-     
-/*       
-.tree li.file::before {
-  content: '📄'; Simbolo per i file
-} */
    
 .tree body {
    font-family: Arial, sans-serif;

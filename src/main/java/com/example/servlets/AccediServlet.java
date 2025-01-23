@@ -35,7 +35,7 @@ public class AccediServlet extends HttpServlet {
 
 		HttpSession session = request.getSession(); 
 													
-		Map<String, Integer> fileTokens = null;
+		Map<String, Integer> fileTokens = null; //token, idfile
 		File f = null;
 		String nomeCartella = null;
 		String user = null;

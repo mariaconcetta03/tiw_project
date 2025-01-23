@@ -133,7 +133,7 @@ public class DocumentoDao {
 		return foundDocs;
 	}
 
-	// Metodo per creare cartelle
+	// Metodo per creare file
 	public void createFile(String proprietario, String nome, Date data_creazione, String sommario, String tipo,
 			Integer sopracartella) {
 		getConnection();

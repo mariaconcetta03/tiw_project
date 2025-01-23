@@ -8,7 +8,7 @@
     text-decoration: none; /* Rimuove la sottolineatura */
 }
 
-/* Evidenzia quando l'elemento è cliccato (focus visibile su tastiera) */
+/* Evidenzia quando l'elemento è cliccato */
 .highlight:focus,
 .highlight:active {
     background-color: rgb(255, 255, 0);

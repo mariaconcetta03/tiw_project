@@ -1,7 +1,7 @@
 @charset "UTF-8";
      
 .tree li::before {
-    content: ''; /* Rimuove qualsiasi icona predefinita per tutti gli <li> */
+    content: ''; /* Rimuove qualsiasi icona predefinita per tutti i <li> */
 }
        
 .tree li.folder::before {
