@@ -38,6 +38,15 @@ public class RegistrationServlet extends HttpServlet {
 		// così si scrive direttamente nella risposta HTTP che verrà inviata al client
 
 		String errorMessage;
+		
+		if (!password.equals(confirmPassword)) { // se non coincidono
+			errorMessage = "Le due password non coincidono. Riprova";
+			// Reindirizza di nuovo alla pagina HTML con il messaggio di errore nella querystring
+			response.sendRedirect(
+					"registration.html?error=" + java.net.URLEncoder.encode(errorMessage, "UTF-8"));
+			return; // non provo a mettere nulla nel database
+		}
+		
 		List<Integer> value = userDao.insertUser(username, password, email);
 		boolean unique, connectionError; //se username/mail unico, value.get(0)==1 altimenti no lo è, lo stesso per la connessione (se c'è stato un errore o meno)
 
